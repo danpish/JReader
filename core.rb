@@ -8,8 +8,8 @@ $is_debugging = false
 $set_inst = nil # setted teddit instance
 $sort_by = ["relevance", "hot", "top", "new"]
 
-def ERR(err_message)
-  puts "ERROR : #{err_message} \n"
+def ERR(place,line ,err_message)
+  puts "ERROR #{place.upcase} IN LINE #{line} : #{err_message} \n"
 end
 
 def JR()
@@ -24,7 +24,7 @@ def JR()
     f_option = ""
 
     if search_query != nil
-      f_option = f_option + "q=" + search_query + "&"
+      f_option = f_option + "search?q=" + search_query + "&"
     end
 
     f_option = f_option + "t=" + time + "&"
@@ -32,13 +32,14 @@ def JR()
     if is_nsfw
       f_option = f_option + "nsfw=on" + "&"
     end
-    f_option = f_option + "sort=" + $sort_by[sort_by]
+    f_option = f_option + "sort=" + $sort_by[sort_by] + "&"
 
     if limited
-      f_option = "&" + f_option + "restric_sr=" + "on"
+      f_option = f_option + "restric_sr=" + "on" + "&"
     end
-
-    return URI::Parser.new.escape f_option
+    f_option = f_option + "api"
+    
+    return URI::Parser.new.escape f_option # for ruby 3
   end
 
   def load_json(link, is_local = true) # is_local would be useless if is_debugging is set to false
@@ -50,9 +51,10 @@ def JR()
       end
     else
       if $set_inst != nil
+        puts $set_inst + link 
         $loaded_json = JSON.load URI.parse($set_inst + link).read
       else
-        ERR("instance is not set. Did you forget to set it? or an error accured while setting it! \n debug instance is #{set_inst}")
+        ERR("core",__LINE__, "instance is not set. Did you forget to set it? or an error accured while setting it!")
       end
     end
   end
@@ -61,13 +63,13 @@ def JR()
     return $loaded_json
   end
 
-  #instance inserted must be a string
+  #instance inserted must be a string and should not have / at the end
 
   def set_instance(inst)
-    if inst != "" || inst != nil
+    if inst.class == String
       $set_inst = inst
     else
-      ERR("url sent for instance is not acceptable")
+      ERR("core",__LINE__, "url sent for instance is not acceptable")
       $set_inst = nil
     end
   end
