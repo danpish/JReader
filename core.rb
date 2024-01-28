@@ -38,7 +38,7 @@ def JR()
       f_option = "&" + f_option + "restric_sr=" + "on"
     end
 
-    return URI.encode f_option
+    return URI::Parser.new.escape f_option
   end
 
   def load_json(link, is_local = true) # is_local would be useless if is_debugging is set to false
