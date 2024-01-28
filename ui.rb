@@ -1,10 +1,10 @@
 require "./core"
 
-JR().im_here
+JR().set_instance("https://teddit.zaggy.nl/")
 
-JR().load_json("http://127.0.0.1:8000/download.json")
+#JR().load_json("")
 
-JR().puts_loaded_json
+puts JR().search_options(nil, false, false, 2)
 
 =begin
 Shoes.app :width => 100, :height => 100 do
