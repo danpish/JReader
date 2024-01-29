@@ -11,6 +11,12 @@ $type = ["hot", "top", "new"]
 $time_table = ["hour", "24hour", "week", "month", "year", "all"]
 $rand_func = Random.new()
 
+$def_nsfw = false
+$def_lim = false
+$def_sort = 0
+$def_time = 5
+$def_type = 0
+
 def ERR(place, line, err_message)
   puts "ERROR #{place.upcase} IN LINE #{line} : #{err_message} \n"
 end
@@ -22,10 +28,10 @@ end
 def JR()
   def search_options(
     search_query = nil,
-    is_nsfw = false,
-    limited = false,
-    sort_by = 0,
-    time = 5 # useless if sorted_by is not set to "top" or 2
+    is_nsfw = $def_nsfw,
+    limited = $def_lim,
+    sort_by = $def_sort,
+    time = $def_time # useless if sorted_by is not set to "top" or 2
     
   )
     f_option = ""
@@ -94,9 +100,9 @@ def JR()
   def subreddit_search(
     subreddit = "all", # default is /r/all
     search_query = nil,
-    is_nsfw = false,
-    sort_by = 0,
-    time = 5
+    is_nsfw = $def_nsfw,
+    sort_by = $def_sort,
+    time = $def_time
   )
     if search_query.class == String
       load_json("/r/#{subreddit}/" + search_options(search_query, is_nsfw, true, sort_by, time))
@@ -107,9 +113,9 @@ def JR()
 
   def get_subreddit(
     subreddit = "all",
-    type = 0,
-    is_nsfw = false,
-    time = 5
+    type = $def_type,
+    is_nsfw = $def_nsfw,
+    time = $def_time
   )
     new_page_api = true # should url generator add "/?api" to the end or not
     link = "/r/#{subreddit}"
@@ -124,5 +130,66 @@ def JR()
       link = link + "/?api"
     end
     load_json(link)
+  end
+end
+
+$def_settings = {inst:"https://teddit.zaggy.nl", nsfw:false, time:5, limit:false, sort_by:0, type:0}
+$settings = nil
+
+def settings()
+  def load_settings()
+    begin
+      file = File.read("settings.json")
+      debug("core", __LINE__, "file loaded")
+      $settings = JSON.load file
+      $set_inst = $settings["inst"]
+      $def_lim = $settings["limit"]
+      $def_time = $settings["time"]
+      $def_sort = $settings["sort_by"]
+      $def_type = $settings["type"]
+      $def_nsfw = $settings["nsfw"]
+    rescue
+      ERR("core", __LINE__, "file does not exsist or loading failed somehow")
+      write_settings(true)
+    end
+  end
+
+  def write_settings(reset)
+    if reset
+      json = JSON.generate($def_settings)
+    else
+      json = JSON.generate($settings)
+    end
+    file = File.open("settings.json", "w")
+    file.write(json)
+    file.close
+  end
+
+  def get_settings()
+    return $settings
+  end
+  
+  def chng_setting(type, value)
+    case (type)
+      when "inst"
+      $settings["inst"] = value
+      when "lim"
+      $settings["limit"] = value
+      when "time"
+      $settings["time"] = value
+      when "sort"
+      $settings["sort_by"] = value
+      when "type"
+      $settings["type"] = value
+      when "nsfw"
+      $settings["nsfw"] = value
+      else
+      ERR("core", __LINE__,"unsupported setting is given")
+    end
+    write_settings(false)
+  end
+  
+  def return_curr_defaults()
+    puts $def_lim, $def_sort, $def_type, $def_time, $set_inst,$def_nsfw
   end
 end

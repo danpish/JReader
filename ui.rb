@@ -2,6 +2,8 @@ require "./core"
 
 JR().set_instance("https://teddit.zaggy.nl")
 
+=begin
+
 #JR().subreddit_search("dragons", "cool")
 
 JR().get_subreddit("dragons", 1, false, 2)
@@ -14,8 +16,15 @@ JR().get_subreddit("dragons", 1, false, 2)
 
 JR().write_json("subreddittest2")
 
-=begin
 Shoes.app :width => 100, :height => 100 do
     button do alert "yaay You pressed me" end
 end
 =end
+
+settings().load_settings
+
+puts settings().get_settings.keys
+
+#settings().chng_setting("type", 3)
+
+settings().return_curr_defaults
