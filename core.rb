@@ -17,9 +17,17 @@ $def_sort = 0
 $def_time = 5
 $def_type = 0
 
+# ERR gets a string, an integer and a string as input 
+# prints message on terminal
+# example : ERR("core", __LINE__, "this is a message that will get print")
+
 def ERR(place, line, err_message)
   puts "ERROR #{place.upcase} IN LINE #{line} : #{err_message} \n"
 end
+
+# DBG is similar to ERR in term of input and output
+# in order of DBG to work, global variuable $is_debugging must be true
+# example : DBG("core", __LINE__, "this is a message that will get print. but only if $is_debugging is set to true") 
 
 def DBG(place, line, dbg_message)
   if $is_debugging
@@ -27,14 +35,16 @@ def DBG(place, line, dbg_message)
   end
 end
 
-def is_loaded()
-  return true
-end
-
 class JR
+  # a function that will return true under any condition
+  # can be used to detect if core.rb is loaded
+
   def is_loaded()
     return true
   end
+
+  # search_options inputs, listed in order are : string, bool, bool, integer, integer
+  # return a string encoded url style. must be used with other urls.  
 
   def search_options(
     search_query = nil,
@@ -107,14 +117,27 @@ class JR
       $set_inst = nil
     end
   end
-
+    
+  # write_json gets a string 
+  # dumps the json loaded in the memory into afile with the given name or with a random float number
+  # 
+  
   def write_json(name = nil)
     f_name = "debug#{$rand_func.rand()}.json"
     if name.class == String
       f_name = "debug#{name}.json"
     end
-    File.write(f_name, JSON.generate($loaded_json))
+    begin
+      File.write(f_name, JSON.generate($loaded_json))
+      return true
+    rescue
+      ERR("core", __LINE__, "writing json file failed")
+      return false
+    end
   end
+
+  # subreddit_search extends search_options function and does it in a specific subreddit
+  # gets string, string, bool, integer, integer 
 
   def subreddit_search(
     subreddit = "all", # default is /r/all
@@ -129,6 +152,9 @@ class JR
       ERR("core", __LINE__, "subreddit search query cannot be empty")
     end
   end
+  
+  # get_subreddit gets a string, integer, bool, integer
+  # if successful returns a hash containing all information in a subreddit homepage 
 
   def get_subreddit(
     subreddit = "all",
@@ -151,6 +177,17 @@ class JR
     load_json(link)
     return link # this is here for testing purposes i will do later
   end
+    
+  # return_preview_image gets an integer and returns an url as string or false apon failure
+  
+  def return_preview_image(post)
+    if $set_inst.class != String
+      ERR("core", __init__, "instance is not set correctly")
+      return false
+    end
+    return $set_inst + $loaded_json["links"][post]["images"]["preview"]
+  end
+  
 end
 
 $def_settings = {inst:"https://teddit.zaggy.nl", nsfw:false, time:5, limit:false, sort_by:0, type:0}
@@ -172,9 +209,11 @@ class Settings
       $def_sort = $settings["sort_by"]
       $def_type = $settings["type"]
       $def_nsfw = $settings["nsfw"]
+      return true
     rescue
       ERR("core", __LINE__, "file does not exsist or loading failed somehow")
       write_settings(true)
+      return false
     end
   end
 
