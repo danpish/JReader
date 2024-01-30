@@ -25,7 +25,15 @@ def debug(place, line, dbg_message)
   puts "DEBUG #{place.upcase} IN LINE #{line} : #{dbg_message} \n"
 end
 
-def JR()
+def is_loaded()
+  return true
+end
+
+class JR
+  def is_loaded()
+    return true
+  end
+
   def search_options(
     search_query = nil,
     is_nsfw = $def_nsfw,
@@ -54,31 +62,42 @@ def JR()
 
     return URI::Parser.new.escape f_option # returns a string like url. Only works for ruby 3+
   end
-
+    
+  #load_json gets 2 strings, address(file or url) and a address type
+  #returns true or false depending on sucess of procedure  
+  
   def load_json(link, local_type = nil)
-    if local_type.class == String
-      if local_type == "file"
-        $loaded_json = JSON.load File.new(link) # read from file
-      else
-        $loaded_json = JSON.load URI.parse(link).read # if you want localhost or give full URL
-      end
-    else
-      if $set_inst != nil
-        if $is_debugging
-          debug("core", __LINE__, "link sent to url parser is #{$set_inst + link}")
+    begin
+      if local_type.class == String
+        if local_type == "file"
+          $loaded_json = JSON.load File.new(link) # read from file
+        else
+          $loaded_json = JSON.load URI.parse(link).read # if you want localhost or give full URL
         end
-        $loaded_json = JSON.load URI.parse($set_inst + link).read
       else
-        ERR("core", __LINE__, "instance is not set. Did you forget to set it? or an error accured while setting it!")
+        if $set_inst != nil
+          if $is_debugging
+            debug("core", __LINE__, "link sent to url parser is #{$set_inst + link}")
+          end
+          $loaded_json = JSON.load URI.parse($set_inst + link).read
+        else
+          ERR("core", __LINE__, "instance is not set. Did you forget to set it? or an error accured while setting it!")
+          return false
+        end
       end
+      return true
+    rescue
+      return false
     end
   end
-
+    
+  #return_loaded_json returns a hash or array depending on json file it loaded  
+  
   def return_loaded_json
     return $loaded_json
   end
-
-  #instance inserted must be a string and should not have / at the end
+    
+  #instance given must be a string and should not have / at the end
 
   def set_instance(inst)
     if inst.class == String
@@ -130,13 +149,14 @@ def JR()
       link = link + "/?api"
     end
     load_json(link)
+    return link # this is here for testing purposes i will do later
   end
 end
 
 $def_settings = {inst:"https://teddit.zaggy.nl", nsfw:false, time:5, limit:false, sort_by:0, type:0}
 $settings = nil
 
-def settings()
+class Settings
   def load_settings()
     begin
       file = File.read("settings.json")
