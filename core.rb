@@ -21,8 +21,10 @@ def ERR(place, line, err_message)
   puts "ERROR #{place.upcase} IN LINE #{line} : #{err_message} \n"
 end
 
-def debug(place, line, dbg_message)
-  puts "DEBUG #{place.upcase} IN LINE #{line} : #{dbg_message} \n"
+def DBG(place, line, dbg_message)
+  if $is_debugging
+    puts "DEBUG #{place.upcase} IN LINE #{line} : #{dbg_message} \n"
+  end
 end
 
 def is_loaded()
@@ -76,9 +78,7 @@ class JR
         end
       else
         if $set_inst != nil
-          if $is_debugging
-            debug("core", __LINE__, "link sent to url parser is #{$set_inst + link}")
-          end
+          DBG("core", __LINE__, "link sent to url parser is #{$set_inst + link}")
           $loaded_json = JSON.load URI.parse($set_inst + link).read
         else
           ERR("core", __LINE__, "instance is not set. Did you forget to set it? or an error accured while setting it!")
@@ -157,10 +157,14 @@ $def_settings = {inst:"https://teddit.zaggy.nl", nsfw:false, time:5, limit:false
 $settings = nil
 
 class Settings
-  def load_settings()
+  def load_settings(specific_file = nil)
     begin
-      file = File.read("settings.json")
-      debug("core", __LINE__, "file loaded")
+      if specific_file.class != String
+        file = File.read("settings.json")
+      else
+        file = File.read(specifig_file)
+      end
+      DBG("core", __LINE__, "file loaded")
       $settings = JSON.load file
       $set_inst = $settings["inst"]
       $def_lim = $settings["limit"]

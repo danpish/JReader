@@ -1,6 +1,10 @@
 require "./core"
 
 $JR = JR.new
+$JRSetting = Settings.new
+
+$JRSetting.load_settings
+
 
 Shoes.app width: 800, height: 600 do
   #startup page
@@ -11,7 +15,13 @@ Shoes.app width: 800, height: 600 do
         stack width: "100%", align: "center", margin_top: 10 do
           stack width: "100%" do
             background "#256", curve: 24
-            title data["links"][place]["title"]
+            stroke "#FFF"
+            caption data["links"][place]["title"], margin_left: 10, margin_right: 10
+            if data["links"][place]["images"]["thumb"].class == String
+              image data["links"][place]["images"]["thumb"], margin_bottom: 7, margin_left: 7
+            else
+              DBG("ui", __LINE__, "image link is not viable : #{data["links"][place]["images"]}")
+            end
           end
         end
       }
