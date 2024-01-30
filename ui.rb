@@ -2,7 +2,6 @@ require "./core"
 
 $JR = JR.new
 $JRSetting = Settings.new
-
 $JRSetting.load_settings
 
 
