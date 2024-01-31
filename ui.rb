@@ -4,7 +4,7 @@ $JR = JR.new
 $JRSetting = Settings.new
 $JRSetting.load_settings
 
-Shoes.app width: 800, height: 600 do
+Shoes.app width: 800, height: 600, title: "JReader dev" do
   #startup page
   def add_element(data)
     @middle_area.scroll = true
@@ -34,7 +34,7 @@ Shoes.app width: 800, height: 600 do
       background "#256", curve: 24
       flow height: "30%" do end
       flow align: "center", margin: 10 do
-        para "search something", align: "center"
+        para "put a subreddit", align: "center"
         search_line = edit_line width: -75, align: "center"
         button "search", width: 75, align: "center" do
           begin

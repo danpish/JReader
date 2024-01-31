@@ -35,6 +35,11 @@ def DBG(place, line, dbg_message)
   end
 end
 
+def url_encode(string)
+  rplc = { " " => "+" }
+  return string.gsub(" ", rplc)
+end
+
 class JR
   # a function that will return true under any condition
   # can be used to detect if core.rb is loaded
@@ -72,7 +77,7 @@ class JR
     end
     f_option = f_option + "api"
 
-    return URI::Parser.new.escape f_option # returns a string like url. Only works for ruby 3+
+    return url_encode f_option # returns a string like url. Only works for ruby 3+
   end
 
   #load_json gets 2 strings, address(file or url) and a address type
@@ -174,13 +179,14 @@ class JR
     if new_page_api
       link = link + "/?api"
     end
+    link = url_encode link
     load_json(link)
     return link # this is here for testing purposes i will do later
   end
 
   # return_preview_image gets an integer and returns an url as string or false apon failure
 
-  def return_preview_image(post)
+  def return_full_image(post)
     if $set_inst.class != String
       ERR("core", __init__, "instance is not set correctly")
       return false
