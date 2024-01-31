@@ -17,7 +17,7 @@ $def_sort = 0
 $def_time = 5
 $def_type = 0
 
-# ERR gets a string, an integer and a string as input 
+# ERR gets a string, an integer and a string as input
 # prints message on terminal
 # example : ERR("core", __LINE__, "this is a message that will get print")
 
@@ -27,7 +27,7 @@ end
 
 # DBG is similar to ERR in term of input and output
 # in order of DBG to work, global variuable $is_debugging must be true
-# example : DBG("core", __LINE__, "this is a message that will get print. but only if $is_debugging is set to true") 
+# example : DBG("core", __LINE__, "this is a message that will get print. but only if $is_debugging is set to true")
 
 def DBG(place, line, dbg_message)
   if $is_debugging
@@ -44,7 +44,7 @@ class JR
   end
 
   # search_options inputs, listed in order are : string, bool, bool, integer, integer
-  # return a string encoded url style. must be used with other urls.  
+  # return a string encoded url style. must be used with other urls.
 
   def search_options(
     search_query = nil,
@@ -74,10 +74,10 @@ class JR
 
     return URI::Parser.new.escape f_option # returns a string like url. Only works for ruby 3+
   end
-    
+
   #load_json gets 2 strings, address(file or url) and a address type
-  #returns true or false depending on sucess of procedure  
-  
+  #returns true or false depending on sucess of procedure
+
   def load_json(link, local_type = nil)
     begin
       if local_type.class == String
@@ -100,13 +100,13 @@ class JR
       return false
     end
   end
-    
-  #return_loaded_json returns a hash or array depending on json file it loaded  
-  
+
+  #return_loaded_json returns a hash or array depending on json file it loaded
+
   def return_loaded_json
     return $loaded_json
   end
-    
+
   #instance given must be a string and should not have / at the end
 
   def set_instance(inst)
@@ -117,11 +117,11 @@ class JR
       $set_inst = nil
     end
   end
-    
-  # write_json gets a string 
+
+  # write_json gets a string
   # dumps the json loaded in the memory into afile with the given name or with a random float number
-  # 
-  
+  #
+
   def write_json(name = nil)
     f_name = "debug#{$rand_func.rand()}.json"
     if name.class == String
@@ -137,7 +137,7 @@ class JR
   end
 
   # subreddit_search extends search_options function and does it in a specific subreddit
-  # gets string, string, bool, integer, integer 
+  # gets string, string, bool, integer, integer
 
   def subreddit_search(
     subreddit = "all", # default is /r/all
@@ -152,9 +152,9 @@ class JR
       ERR("core", __LINE__, "subreddit search query cannot be empty")
     end
   end
-  
+
   # get_subreddit gets a string, integer, bool, integer
-  # if successful returns a hash containing all information in a subreddit homepage 
+  # if successful returns a hash containing all information in a subreddit homepage
 
   def get_subreddit(
     subreddit = "all",
@@ -177,9 +177,9 @@ class JR
     load_json(link)
     return link # this is here for testing purposes i will do later
   end
-    
+
   # return_preview_image gets an integer and returns an url as string or false apon failure
-  
+
   def return_preview_image(post)
     if $set_inst.class != String
       ERR("core", __init__, "instance is not set correctly")
@@ -187,10 +187,9 @@ class JR
     end
     return $set_inst + $loaded_json["links"][post]["images"]["preview"]
   end
-  
 end
 
-$def_settings = {inst:"https://teddit.zaggy.nl", nsfw:false, time:5, limit:false, sort_by:0, type:0}
+$def_settings = { inst: "https://teddit.zaggy.nl", nsfw: false, time: 5, limit: false, sort_by: 0, type: 0 }
 $settings = nil
 
 class Settings
@@ -201,14 +200,54 @@ class Settings
       else
         file = File.read(specifig_file)
       end
-      DBG("core", __LINE__, "file loaded")
+      DBG("core", __LINE__, "settings file has been loaded")
       $settings = JSON.load file
-      $set_inst = $settings["inst"]
-      $def_lim = $settings["limit"]
-      $def_time = $settings["time"]
-      $def_sort = $settings["sort_by"]
-      $def_type = $settings["type"]
-      $def_nsfw = $settings["nsfw"]
+
+      #validate
+      json_is_valid = false
+      if $settings["inst"].class != String
+        ERR("core", __LINE__, "config file is not valid. modify \"inst\" in settings.json.")
+        return false
+      elsif $settings["limit"].class != TrueClass and $settings["limit"].class != FalseClass
+        ERR("core", __LINE__, "config file is not valid. modify \"limit\" in settings.json.")
+        return false
+      elsif $settings["time"].class != Integer
+        ERR("core", __LINE__, "config file is not valid. modify \"time\" in settings.json.")
+        return false
+      elsif $settings["sort_by"].class != Integer
+        ERR("core", __LINE__, "config file is not valid. modify \"sort_by\" in settings.json.")
+        return false
+      elsif $settings["type"].class != Integer
+        ERR("core", __LINE__, "config file is not valid. modify \"type\" in settings.json.")
+        return false
+      elsif $settings["nsfw"].class != TrueClass and $settings["nsfw"].class != FalseClass
+        ERR("core", __LINE__, "config file is not valid. modify \"nsfw\" in settings.json.")
+        return false
+      else
+        #validate phase 2
+        if not($settings["time"] < $time_table.length and $settings["time"] >= 0)
+          ERR("core", __LINE__, "value set for a setting is not valid. modify \"time\" in settings.json. it should be a number between 0 and #{$time_table.length - 1} but it is #{$settings["time"]}")
+          return false
+        elsif not($settings["sort_by"] < $sort_by.length and $settings["sort_by"] >= 0)
+          ERR("core", __LINE__, "value set for a setting is not valid. modify \"sort_by\" in settings.json. it should be a number between 0 and #{$sort_by.length - 1} but it is #{$settings["sort_by"]}")
+          return false
+        elsif not($settings["type"] < $type.length and $settings["type"] >= 0)
+          ERR("core", __LINE__, "value set for a setting is not valid. modify \"type\" in settings.json. it should be a number between 0 and #{$type.length - 1} but it is #{$settings["type"]}")
+          return false
+        else
+          DBG("core", __LINE__, "validating was successful")
+          json_is_valid = true
+        end
+      end
+      if json_is_valid
+        $set_inst = $settings["inst"]
+        $def_lim = $settings["limit"]
+        $def_time = $settings["time"]
+        $def_sort = $settings["sort_by"]
+        $def_type = $settings["type"]
+        $def_nsfw = $settings["nsfw"]
+        DBG("core", __LINE__, "loaded settings and they are instance: #{$set_inst} is_limited: #{$def_lim} top_time: #{$def_time} sort_order: #{$def_sort} result_type: #{$def_type} is_nsfw: #{$def_nsfw}")
+      end
       return true
     rescue
       ERR("core", __LINE__, "file does not exsist or loading failed somehow")
@@ -231,28 +270,28 @@ class Settings
   def get_settings()
     return $settings
   end
-  
+
   def chng_setting(type, value)
     case (type)
-      when "inst"
+    when "inst"
       $settings["inst"] = value
-      when "lim"
+    when "lim"
       $settings["limit"] = value
-      when "time"
+    when "time"
       $settings["time"] = value
-      when "sort"
+    when "sort"
       $settings["sort_by"] = value
-      when "type"
+    when "type"
       $settings["type"] = value
-      when "nsfw"
+    when "nsfw"
       $settings["nsfw"] = value
-      else
-      ERR("core", __LINE__,"unsupported setting is given")
+    else
+      ERR("core", __LINE__, "unsupported setting is given")
     end
     write_settings(false)
   end
-  
+
   def return_curr_defaults()
-    puts $def_lim, $def_sort, $def_type, $def_time, $set_inst,$def_nsfw
+    puts $def_lim, $def_sort, $def_type, $def_time, $set_inst, $def_nsfw
   end
 end

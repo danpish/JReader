@@ -4,10 +4,9 @@ $JR = JR.new
 $JRSetting = Settings.new
 $JRSetting.load_settings
 
-
 Shoes.app width: 800, height: 600 do
   #startup page
-  def add_element (data)
+  def add_element(data)
     @middle_area.scroll = true
     for place in (0..data["links"].length)
       @middle_area.append {
@@ -36,35 +35,51 @@ Shoes.app width: 800, height: 600 do
       flow height: "30%" do end
       flow align: "center", margin: 10 do
         para "search something", align: "center"
-        edit_line width: -75, align: "center"
+        search_line = edit_line width: -75, align: "center"
         button "search", width: 75, align: "center" do
-          @left_area.hide
-          @right_area.width = "40%"
-          @search_box.hide
-          @inform_box.show
-          @sub_search_box.show
-          add_element
+          begin
+            did_download = $JR.get_subreddit(search_line.text())
+            if did_download
+              json = $JR.return_loaded_json
+            end
+          rescue
+            ERR("ui", __LINE__, "core.rb is not accessible")
+            load_failed = true
+          end
+          if json
+            #alert "library successfully loaded"
+            @left_area.hide
+            @right_area.width = "40%"
+            @search_box.hide
+            @inform_box.show
+            @sub_search_box.show
+            add_element $JR.return_loaded_json
+          else
+            if not load_failed
+              alert "Loading was unsuccessful. Try openning terminal and enable is_debugging in core.rb to get more details."
+            end
+          end
         end
         button "load json", width: "100%", align: "center" do
-            begin
-              json = $JR.load_json("download.json", "file")
-            rescue
-              ERR("ui", __LINE__, "core.rb is not accessible")
-              load_failed = true
+          begin
+            json = $JR.load_json("download.json", "file")
+          rescue
+            ERR("ui", __LINE__, "core.rb is not accessible")
+            load_failed = true
+          end
+          if json
+            #alert "library successfully loaded"
+            @left_area.hide
+            @right_area.width = "40%"
+            @search_box.hide
+            @inform_box.show
+            @sub_search_box.show
+            add_element $JR.return_loaded_json
+          else
+            if not load_failed
+              alert "Loading was unsuccessful. Try openning terminal and enable is_debugging in core.rb to get more details."
             end
-            if json
-              #alert "library successfully loaded"
-              @left_area.hide
-              @right_area.width = "40%"
-              @search_box.hide
-              @inform_box.show
-              @sub_search_box.show
-              add_element $JR.return_loaded_json
-             else
-              if not load_failed
-                alert "Loading was unsuccessful. Try openning terminal and enable is_debugging in core.rb to get more details."
-              end
-            end
+          end
         end
       end
     end
