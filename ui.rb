@@ -25,8 +25,7 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
       }
     end
   end
-  
-  
+
   def goto_results()
     @left_area.hide
     @right_area.width = "40%"
@@ -34,8 +33,7 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
     @inform_box.show
     @sub_search_box.show
   end
-  
-  
+
   def settings_start()
     @search_box.toggle
     @settings_menu.toggle
@@ -96,12 +94,20 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
         end
       end
     end
-    
+
     @settings_menu = stack width: "100%", height: 200, align: "center" do
       background "#256", curve: 24
+      stack width: "100%", height: "100%", margin: 10 do
+        para "settings\ndefault values", align: "center"
+        @def_inst = edit_line width: "100%"
+        @def_lim = check; para "limit search to subreddit"
+        @def_nsfw = check; para "is nsfw enabled?"
+        @def_inst.text = $set_inst
+        @def_lim.checked = $def_lim
+        @def_nsfw.checked = $def_nsfw
+      end
     end
     @settings_menu.hide
-    
   end
 
   @right_area = flow width: "20%", height: "100%", margin: 10 do
