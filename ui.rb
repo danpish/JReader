@@ -9,27 +9,31 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
   def add_element(data)
     @middle_area.scroll = true
     for place in (0..data["links"].length)
-      @middle_area.append {
-        stack width: "100%", align: "center", margin_top: 10 do
-          stack width: "100%" do
-            background "#256", curve: 24
-            stroke "#FFF"
-            caption data["links"][place]["title"], margin_left: 10, margin_right: 10
-            if data["links"][place]["images"]["thumb"].class == String
-              image data["links"][place]["images"]["thumb"], margin_bottom: 7, margin_left: 7
-            else
-              DBG("ui", __LINE__, "image link is not viable : #{data["links"][place]["images"]}")
-            end
+      @posts.append {
+        stack width: "100%" do
+          background "#256", curve: 24
+          stroke "#FFF"
+          caption data["links"][place]["title"], margin_left: 10, margin_right: 10
+          if data["links"][place]["images"]["thumb"].class == String
+            image data["links"][place]["images"]["thumb"], margin_bottom: 7, margin_left: 7
+          else
+            DBG("ui", __LINE__, "image link is not valid : #{data["links"][place]["images"]}")
           end
         end
       }
     end
   end
 
+  def clear_posts()
+    @posts.clear()
+  end
+
   def goto_results()
     @left_area.hide
     @right_area.width = "40%"
     @search_box.hide
+    @posts.show
+    @rtrn_to_main.show
     @inform_box.show
     @sub_search_box.show
   end
@@ -42,6 +46,15 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
     else
       @settings_button.text = "settings"
     end
+  end
+
+  def show_main()
+    clear_posts
+    @search_box.show
+    @rtrn_to_main.hide
+    @inform_box.hide
+    @sub_search_box.hide
+    @left_area.show
   end
 
   background "#123"
@@ -105,7 +118,7 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
         @def_inst.text = $set_inst
         @def_lim.checked = $def_lim
         @def_nsfw.checked = $def_nsfw
-        
+
         flow width: "100%", align: "center" do
           button "apply" do
             did_change = false
@@ -136,6 +149,8 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
       end
     end
     @settings_menu.hide
+    @posts = stack width: "100%", align: "center", margin_top: 10 do end
+    @posts.hide
   end
 
   @right_area = flow width: "20%", height: "100%", margin: 10 do
@@ -145,6 +160,8 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
     @sub_search_box = stack width: "100%", height: "20%", align: "center", margin_top: 10 do
       background "#256", curve: 24
     end
+    @rtrn_to_main = button "<=" do show_main end
+    @rtrn_to_main.hide
     @inform_box.hide
     @sub_search_box.hide
   end
