@@ -25,16 +25,37 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
       }
     end
   end
+  
+  
+  def goto_results()
+    @left_area.hide
+    @right_area.width = "40%"
+    @search_box.hide
+    @inform_box.show
+    @sub_search_box.show
+  end
+  
+  
+  def settings_start()
+    @search_box.toggle
+    @settings_menu.toggle
+    if @settings_button.text == "settings"
+      @settings_button.text = "<="
+    else
+      @settings_button.text = "settings"
+    end
+  end
 
   background "#123"
-  @left_area = flow width: "20%" do end
+  @left_area = flow width: "20%" do
+    @settings_button = button "settings" do settings_start end
+  end
 
   @middle_area = flow width: "60%", height: "100%", margin: 10 do
     @search_box = stack width: "100%", height: 200, align: "center" do
       background "#256", curve: 24
-      flow height: "30%" do end
       flow align: "center", margin: 10 do
-        para "put a subreddit", align: "center"
+        para "put a subreddit", margin_top: "39%", align: "center"
         search_line = edit_line width: -75, align: "center"
         button "search", width: 75, align: "center" do
           begin
@@ -48,11 +69,7 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
           end
           if json
             #alert "library successfully loaded"
-            @left_area.hide
-            @right_area.width = "40%"
-            @search_box.hide
-            @inform_box.show
-            @sub_search_box.show
+            goto_results
             add_element $JR.return_loaded_json
           else
             if not load_failed
@@ -69,11 +86,7 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
           end
           if json
             #alert "library successfully loaded"
-            @left_area.hide
-            @right_area.width = "40%"
-            @search_box.hide
-            @inform_box.show
-            @sub_search_box.show
+            goto_results
             add_element $JR.return_loaded_json
           else
             if not load_failed
@@ -83,6 +96,12 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
         end
       end
     end
+    
+    @settings_menu = stack width: "100%", height: 200, align: "center" do
+      background "#256", curve: 24
+    end
+    @settings_menu.hide
+    
   end
 
   @right_area = flow width: "20%", height: "100%", margin: 10 do
