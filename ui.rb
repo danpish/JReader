@@ -105,6 +105,34 @@ Shoes.app width: 800, height: 600, title: "JReader dev" do
         @def_inst.text = $set_inst
         @def_lim.checked = $def_lim
         @def_nsfw.checked = $def_nsfw
+        
+        flow width: "100%", align: "center" do
+          button "apply" do
+            did_change = false
+            if @def_inst.text != $set_inst
+              $JRSetting.chng_setting("inst", @def_inst.text)
+              did_change = true
+            end
+            if @def_lim.checked? != $def_lim
+              $JRSetting.chng_setting("lim", @def_lim.checked?)
+              did_change = true
+            end
+            if @def_nsfw.checked? != $def_nsfw
+              $JRSetting.chng_setting("nsfw", @def_nsfw.checked?)
+              did_change = true
+            end
+            if not did_change
+              alert "no changes has been applied"
+            else
+              $JRSetting.load_settings
+            end
+          end
+          button "cancel" do
+            @def_inst.text = $set_inst
+            @def_lim.checked = $def_lim
+            @def_nsfw.checked = $def_nsfw
+          end
+        end
       end
     end
     @settings_menu.hide
