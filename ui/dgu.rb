@@ -2,6 +2,33 @@ require "gosu"
 
 $width = 800
 $height = 600
+$stroke = true
+$stroke_weigh = 5
+$stroke_color = Gosu::Color::RED
+
+def stroke(do_QM)
+  $stroke = do_QM
+end
+
+def stroke_color(color)
+  if color.class == Gosu::Color  
+    $stroke_color = color
+    return 1
+  else
+    puts "ERROR: stroke color provided is not valid. are you sure you are using Gosu::Color?"
+    return 44
+  end
+end
+
+def stoke_weigh(value)
+  if value.class == Integer or value.class == Float
+    $stroke_weigh = value
+    return 1
+  else
+    puts "ERROR: stoke weigh provided is not valid"
+    return 44
+  end
+end
 
 class Shapes < Gosu::Window
   ##
@@ -112,6 +139,37 @@ class Rectangle < Shapes
       top_right.make(posx + @r_w - @rads[1] * 2, posy)
       bot_left.make(posx, posy + @r_h - @rads[2] * 2)
       bot_right.make(posx + @r_w - @rads[3] * 2, posy + @r_h - @rads[3] * 2)
+      
+      if $stroke
+        draw_rect(
+          posx + @rads[0],
+          posy - $stroke_weigh / 2,
+          @r_w - @rads[0] - @rads[1],
+          $stroke_weigh,
+          $stroke_color
+        )
+        draw_rect(
+          posx - $stroke_weigh / 2,
+          posy + @rads[0],
+          $stroke_weigh,
+          @r_h - @rads[0] - @rads[2],
+          $stroke_color
+        )
+        draw_rect(
+          posx + @rads[2],
+          posy + @r_h - $stroke_weigh / 2,
+          @r_w - @rads[2] - @rads[3],
+          $stroke_weigh,
+          $stroke_color
+        )
+        draw_rect(
+          posx + @r_w - $stroke_weigh / 2,
+          posy + @rads[1],
+          $stroke_weigh,
+          @r_h - @rads[1] - @rads[3],
+          $stroke_color
+        )
+      end
       
     else
       draw_quad(
