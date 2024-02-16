@@ -1,9 +1,12 @@
 require "./ui/dgu"
 
 $cool = Circle.new(20, 25, Gosu::Color::CYAN)
-$tri = Rectangle.new(40, 20, Gosu::Color::CYAN)
+$rect = Rectangle.new(100, 100, Gosu::Color::CYAN)
 
-$tri.corner_data([10,10,10,10])
+$rect.corner_data([20,5,10,0])
+
+$rect2 = Rectangle.new(100, 100, Gosu::Color::YELLOW)
+$rect2.corner_data([30,30,30,30])
 
 class JReader < Gosu::Window
   def initialize
@@ -12,7 +15,8 @@ class JReader < Gosu::Window
 
   def draw
     $cool.make(100, 100)
-    $tri.make(200,150)
+    $rect.make(200,150)
+    $rect2.make(300,300)
   end
 end
 
