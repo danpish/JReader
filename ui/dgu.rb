@@ -41,3 +41,23 @@ class Circle < Shapes
     end
   end
 end
+
+class Rectangle < Shapes
+  def initialize(r_w, r_h, r_scale = 1, color1, color2 = nil, rads = Array.new(4))
+    @r_w = r_w
+    @r_h = r_h
+    @color1 = color1
+    @color2 = color2
+    @rads = rads
+    @r_scale = r_scale
+  end
+  
+  def make(posx, posy)
+    draw_quad(
+      posx, posy, @color1,
+      posx + @r_w, posy, @color1,
+      posx, posy + @r_h, @color1,
+      posx + @r_w, posy + @r_h, @color1
+    )
+  end
+end
