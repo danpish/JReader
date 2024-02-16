@@ -1,8 +1,14 @@
 require "./ui/dgu"
 
-class JReader < App
-  def draw_window
-    draw_circle(50,100,100,25)
+$cool = Circle.new(20, 25, Gosu::Color::CYAN)
+
+class JReader < Gosu::Window
+  def initialize
+    super $width, $height
+  end
+
+  def draw
+    $cool.make(100, 100)
   end
 end
 
