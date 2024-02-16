@@ -43,16 +43,56 @@ class Circle < Shapes
 end
 
 class Rectangle < Shapes
-  def initialize(r_w, r_h, r_scale = 1, color1, color2 = nil, rads = Array.new(4))
+  def initialize(r_w, r_h, color1, color2 = nil, rads = Array.new(4))
     @r_w = r_w
     @r_h = r_h
     @color1 = color1
     @color2 = color2
     @rads = rads
-    @r_scale = r_scale
+    @r_scale = 1
+    
+    @round_corners = false
+  end
+  
+  def change_scale(scale)
+    if scale.class == Integer or scale.class == Float
+      @r_scale = scale
+      return 1
+    else
+      puts "ERROR: line #{__LINE__} number provided is not a number"
+      return 44
+    end
+  end
+  
+  def corner_data(rads)
+    #validate
+    is_valid = true
+    for corner in rads do
+      if corner.nil?
+        is_valid = false
+      end
+    end
+    if is_valid
+      @rads = rads
+      @round_corners = true
+      return 1
+    else
+      puts "WARNING: line #{__LINE__} array provided is not valid! \n"
+      return 44
+    end
   end
   
   def make(posx, posy)
+    @round_corners = true
+    for corner in @rads do
+      if corner.nil?
+        @round_corners = false
+      end
+    end
+    if @round_corners
+      puts "ROUND CORNERS"
+    end
+    
     draw_quad(
       posx, posy, @color1,
       posx + @r_w, posy, @color1,
