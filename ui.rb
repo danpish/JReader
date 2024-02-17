@@ -27,7 +27,7 @@ class JReader < Gosu::Window
     $cool.make(100, 100)
     $rect.make(200,150)
     $rect2.make(300,300)
-    $rects.each { |rect| rect.make($rand.rand(800), $rand.rand(600))}
+    #$rects.each { |rect| rect.make($rand.rand(800), $rand.rand(600))}
     puts Gosu.fps
   end
 end

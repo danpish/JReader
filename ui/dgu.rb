@@ -123,28 +123,47 @@ class Rectangle < Shapes
       end
     end
     if @round_corners
-      draw_quad(
-        posx + @rads[0], posy, @color1,
-        posx + @r_w - @rads[1], posy, @color1,
-        posx + @rads[2], posy + @r_h, @color1,
-        posx + @r_w - @rads[3], posy + @r_h, @color1
+      draw_rect(
+        posx + @rads[0],
+        posy,
+        @r_w - @rads[0] - @rads[1],
+        @r_h,
+        @color1
       )
-      draw_quad(
-        posx, posy + @rads[0], @color1,
-        posx + @r_w, posy + @rads[1], @color1,
-        posx, posy + @r_h - @rads[2], @color1,
-        posx + @r_w, posy + @r_h - @rads[3], @color1
+      draw_rect(
+        posx,
+        posy + @rads[0],
+        @rads[0],
+        @r_h - @rads[0] - @rads[2],
+        @color1
+      )
+      draw_rect(
+        posx + @rads[0] + @r_w - @rads[0] - @rads[1],
+        posy + @rads[0],
+        @rads[0],
+        @r_h - @rads[0] - @rads[2],
+        @color1
+      )
+      draw_rect(
+        posx + @rads[0] + @r_w - @rads[0] - @rads[1],
+        posy + @rads[0],
+        @rads[0],
+        @r_h - @rads[0] - @rads[2],
+        @color1
+      )
+      draw_rect(
+        posx + @rads[0] + @r_w - @rads[0] - @rads[1],
+        posy + @rads[0],
+        @rads[0],
+        @r_h - @rads[0] - @rads[2],
+        @color1
       )
       
-      top_left = Circle.new(@rads[0], 20,@color1)
-      top_right = Circle.new(@rads[1], 20,@color1)
-      bot_left = Circle.new(@rads[2], 20,@color1)
-      bot_right = Circle.new(@rads[3], 20,@color1)
       
-      top_left.make(posx , posy)
-      top_right.make(posx + @r_w - @rads[1] * 2, posy)
-      bot_left.make(posx, posy + @r_h - @rads[2] * 2)
-      bot_right.make(posx + @r_w - @rads[3] * 2, posy + @r_h - @rads[3] * 2)
+      
+      
+      
+      
       
       if $stroke
         draw_rect(
