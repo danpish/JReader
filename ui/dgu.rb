@@ -2,7 +2,7 @@ require "gosu"
 
 $width = 800
 $height = 600
-$stroke = true
+$stroke = false
 $stroke_weigh = 5
 $stroke_color = Gosu::Color::RED
 
@@ -10,17 +10,23 @@ def stroke(do_QM)
   $stroke = do_QM
 end
 
+def pop
+  $stroke = false
+  $stroke_weigh = 5
+  $stroke_color = Gosu::Color::RED
+end
+
 def stroke_color(color)
-  if color.class == Gosu::Color  
+  if color.class == Gosu::Color or color.class == Gosu::ImmutableColor
     $stroke_color = color
     return 1
   else
-    puts "ERROR: stroke color provided is not valid. are you sure you are using Gosu::Color?"
+    puts "ERROR: stroke color provided is not valid. are you sure you are using Gosu::Color? #{color.class}"
     return 44
   end
 end
 
-def stoke_weigh(value)
+def stroke_weigh(value)
   if value.class == Integer or value.class == Float
     $stroke_weigh = value
     return 1
