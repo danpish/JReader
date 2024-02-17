@@ -124,39 +124,41 @@ class Rectangle < Shapes
     end
     if @round_corners
       draw_rect(
-        posx + @rads[0],
-        posy,
-        @r_w - @rads[0] - @rads[1],
-        @r_h,
-        @color1
-      )
-      draw_rect(
         posx,
-        posy + @rads[0],
-        @rads[0],
-        @r_h - @rads[0] - @rads[2],
-        @color1
+        posy,
+        @r_w,
+        @r_h,
+        Gosu::Color::RED
       )
-      draw_rect(
-        posx + @rads[0] + @r_w - @rads[0] - @rads[1],
-        posy + @rads[0],
-        @rads[0],
-        @r_h - @rads[0] - @rads[2],
-        @color1
+      draw_quad(
+        posx + @rads[0], posy, @color1,
+        posx + @rads[0], posy + @rads[0], @color1,
+        posx + @r_w - @rads[1], posy + @rads[1], @color1,
+        posx + @r_w - @rads[1], posy, @color1,
       )
-      draw_rect(
-        posx + @rads[0] + @r_w - @rads[0] - @rads[1],
-        posy + @rads[0],
-        @rads[0],
-        @r_h - @rads[0] - @rads[2],
-        @color1
+      draw_quad(
+        posx, posy + @rads[0], @color1,
+        posx + @rads[0], posy + @rads[0], @color1,
+        posx + @rads[2], posy + @r_h - @rads[2], @color1,
+        posx, posy + @r_h - @rads[2], @color1
       )
-      draw_rect(
-        posx + @rads[0] + @r_w - @rads[0] - @rads[1],
-        posy + @rads[0],
-        @rads[0],
-        @r_h - @rads[0] - @rads[2],
-        @color1
+      draw_quad(
+        posx + @rads[2],posy + @r_h - @rads[2], @color1,
+        posx + @rads[2],posy + @r_h , @color1,
+        posx + @r_w - @rads[3],posy + @r_h , @color1,
+        posx + @r_w - @rads[3],posy + @r_h - @rads[3], @color1
+      )
+      draw_quad(
+        posx + @r_w - @rads[1], posy + @rads[1], @color1,
+        posx + @r_w, posy + @rads[1], @color1,
+        posx + @r_w, posy + @r_h - @rads[3], @color1,
+        posx + @r_w - @rads[3], posy + @r_h - @rads[3], @color1
+      )
+      draw_quad(
+        posx + @rads[0], posy + @rads[0], @color1,
+        posx + @r_w - @rads[1], posy + @rads[1], @color1,
+        posx + @r_w - @rads[3], posy + @r_h - @rads[3], @color1,
+        posx + @rads[2], posy + @r_h - @rads[2], @color1
       )
       
       
