@@ -169,6 +169,46 @@ class Rectangle < Shapes
           @r_h - @rads[1] - @rads[3],
           $stroke_color
         )
+        
+        previous_point = 0
+        for points in 1..16 do
+          normalize = points.to_f / 16
+          normalize *= 2 * Math::PI
+          dest_rad = 0
+          if points / 4 < 1 or points.to_f / 4 <= 1.to_f
+            center_x = posx + @r_w - @rads[1]
+            center_y = posy + @rads[1]
+            dest_rad = @rads[1]
+          elsif points / 4 < 2 or points.to_f / 4 <= 2.to_f
+            center_x = posx + @rads[0]
+            center_y = posy + @rads[0]
+            dest_rad = @rads[0]
+          elsif points / 4 < 3 or points.to_f / 4 <= 3.to_f
+            center_x = posx + @rads[2]
+            center_y = posy + @r_h - @rads[2]
+            dest_rad = @rads[2]
+          else
+            center_x = posx + @r_w - @rads[3]
+            center_y = posy + @r_h - @rads[3]
+            dest_rad = @rads[3]
+          end
+          if points.to_f / 4 == 1.to_f
+            normalize = Math::PI / 2
+          end
+          if points.to_f / 4 == 2.to_f
+            normalize = Math::PI
+          end
+          if points.to_f / 4 == 3.to_f
+            normalize = Math::PI * 3 / 2
+          end
+          draw_quad(
+            center_x + Math.cos(previous_point) * dest_rad - $stroke_weigh * Math.cos(previous_point) / 2,center_y - Math.sin(previous_point) * dest_rad + $stroke_weigh * Math.sin(previous_point) / 2,$stroke_color,
+            center_x + Math.cos(previous_point) * dest_rad + $stroke_weigh * Math.cos(previous_point) / 2,center_y - Math.sin(previous_point) * dest_rad - $stroke_weigh * Math.sin(previous_point) / 2,$stroke_color,
+            center_x + Math.cos(normalize) * dest_rad + $stroke_weigh * Math.cos(normalize) / 2,center_y - Math.sin(normalize) * dest_rad - $stroke_weigh * Math.sin(normalize) / 2,$stroke_color,
+            center_x + Math.cos(normalize) * dest_rad - $stroke_weigh * Math.cos(normalize) / 2,center_y - Math.sin(normalize) * dest_rad + $stroke_weigh * Math.sin(normalize) / 2,$stroke_color   
+          )
+          previous_point = normalize
+        end
       end
       
     else
