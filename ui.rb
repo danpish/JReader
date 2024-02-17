@@ -6,7 +6,7 @@ $rect = Rectangle.new(100, 100, Gosu::Color::CYAN)
 $rect.corner_data([20,5,10,0])
 
 $rect2 = Rectangle.new(100, 100, Gosu::Color::YELLOW)
-$rect2.corner_data([30,30,30,30])
+#$rect2.corner_data([30,30,30,30])
 
 $truerect = Rectangle.new(350, 100, Gosu::Color::WHITE)
 $truerect.corner_data([40,20,30,10])
@@ -20,9 +20,12 @@ class JReader < Gosu::Window
   end
 
   def draw
+    stroke(true)
     $cool.make(100, 100)
     $rect.make(200,150)
+    stroke_color(Gosu::Color::BLUE)
     $rect2.make(300,300)
+    pop()
     puts Gosu.fps
   end
 end

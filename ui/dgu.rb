@@ -72,6 +72,21 @@ class Circle < Shapes
       end
       previous_point = normalize
     end
+    
+    if $stroke
+      for points in 1..@res do
+          normalize = points.to_f / @res
+          normalize *= 2 * Math::PI
+          draw_quad(
+            center_x + Math.cos(previous_point) * @radious - $stroke_weigh * Math.cos(previous_point) / 2,center_y - Math.sin(previous_point) * @radious + $stroke_weigh * Math.sin(previous_point) / 2,$stroke_color,
+            center_x + Math.cos(previous_point) * @radious + $stroke_weigh * Math.cos(previous_point) / 2,center_y - Math.sin(previous_point) * @radious - $stroke_weigh * Math.sin(previous_point) / 2,$stroke_color,
+            center_x + Math.cos(normalize) * @radious + $stroke_weigh * Math.cos(normalize) / 2,center_y - Math.sin(normalize) * @radious - $stroke_weigh * Math.sin(normalize) / 2,$stroke_color,
+            center_x + Math.cos(normalize) * @radious - $stroke_weigh * Math.cos(normalize) / 2,center_y - Math.sin(normalize) * @radious + $stroke_weigh * Math.sin(normalize) / 2,$stroke_color   
+          )
+          previous_point = normalize
+        end
+    end
+    
   end
 end
 
@@ -200,9 +215,6 @@ class Rectangle < Shapes
         previous_point = normalize
       end
       
-      
-      
-      
       if $stroke
         draw_rect(
           posx + @rads[0],
@@ -281,6 +293,37 @@ class Rectangle < Shapes
         posx, posy + @r_h, @color1,
         posx + @r_w, posy + @r_h, @color1
       )
+      
+      if $stroke
+        draw_rect(
+          posx - $stroke_weigh / 2,
+          posy - $stroke_weigh / 2,
+          @r_w + $stroke_weigh,
+          $stroke_weigh,
+          $stroke_color
+        )
+        draw_rect(
+          posx - $stroke_weigh / 2,
+          posy - $stroke_weigh / 2,
+          $stroke_weigh,
+          @r_h + $stroke_weigh,
+          $stroke_color
+        )
+        draw_rect(
+          posx - $stroke_weigh / 2,
+          posy + @r_h - $stroke_weigh / 2,
+          @r_w + $stroke_weigh ,
+          $stroke_weigh,
+          $stroke_color
+        )
+        draw_rect(
+          posx + @r_w - $stroke_weigh / 2,
+          posy - $stroke_weigh / 2 ,
+          $stroke_weigh,
+          @r_h + $stroke_weigh ,
+          $stroke_color
+        )
+      end
     end
   end
 end
