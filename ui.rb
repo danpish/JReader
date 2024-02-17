@@ -14,7 +14,7 @@ $rects = Array.new()
 
 $rand = Random.new()
 
-for x in 1..200 do
+for x in 1..50 do
   $rects.push (Rectangle.new(100, 100, Gosu::Color::YELLOW))
   $rects[x - 1].corner_data([$rand.rand(10), $rand.rand(10),$rand.rand(10),$rand.rand(10)])
 end
