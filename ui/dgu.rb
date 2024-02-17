@@ -1,7 +1,5 @@
 require "gosu"
 
-$width = 800
-$height = 600
 $stroke = false
 $stroke_weigh = 5
 $stroke_color = Gosu::Color::RED
@@ -46,6 +44,11 @@ class Shapes < Gosu::Window
   ##
   @shader_info = "none" # not used yet
   @visible = true
+  
+  def color(color)
+    @color1 = color
+  end
+  
 end
 
 class Circle < Shapes
