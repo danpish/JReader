@@ -8,15 +8,16 @@ $rect.corner_data([20,5,10,0])
 $rect2 = Rectangle.new(100, 100, Gosu::Color::YELLOW)
 $rect2.corner_data([30,30,30,30])
 
+$rects = Array.new()
 
-$rect3 = Rectangle.new(120, 120, Gosu::Color::GRAY)
-$rect3.corner_data([20,15,20,35])
+$rand = Random.new()
 
-$rect4 = Rectangle.new(100, 100, Gosu::Color::GREEN)
-$rect4.corner_data([10,10,20,20])
+for x in 1..50 do
+  $rects.push (Rectangle.new(100, 100, Gosu::Color::YELLOW))
+  $rects[x - 1].corner_data([$rand.rand(10), $rand.rand(10),$rand.rand(10),$rand.rand(10)])
+end
 
-$rect5 = Rectangle.new(100, 100, Gosu::Color::BLUE)
-$rect5.corner_data([5,10,20,10])
+
 class JReader < Gosu::Window
   def initialize
     super $width, $height
@@ -26,14 +27,8 @@ class JReader < Gosu::Window
     $cool.make(100, 100)
     $rect.make(200,150)
     $rect2.make(300,300)
-    stroke(true)
-    $rect3.make(400,100)
-    stroke_weigh(20)
-    stroke_color(Gosu::Color::WHITE)
-    $rect4.make(450,250)
-    stroke(false)
-    pop
-    $rect5.make(500,450)
+    $rects.each { |rect| rect.make($rand.rand(800), $rand.rand(600))}
+    puts Gosu.fps
   end
 end
 
