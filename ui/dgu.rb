@@ -123,28 +123,85 @@ class Rectangle < Shapes
       end
     end
     if @round_corners
+      #draw_rect(
+      #  posx,
+      #  posy,
+      #  @r_w,
+      #  @r_h,
+      #  Gosu::Color::RED
+      #)
       draw_quad(
         posx + @rads[0], posy, @color1,
+        posx + @rads[0], posy + @rads[0], @color1,
+        posx + @r_w - @rads[1], posy + @rads[1], @color1,
         posx + @r_w - @rads[1], posy, @color1,
-        posx + @rads[2], posy + @r_h, @color1,
-        posx + @r_w - @rads[3], posy + @r_h, @color1
       )
       draw_quad(
         posx, posy + @rads[0], @color1,
+        posx + @rads[0], posy + @rads[0], @color1,
+        posx + @rads[2], posy + @r_h - @rads[2], @color1,
+        posx, posy + @r_h - @rads[2], @color1
+      )
+      draw_quad(
+        posx + @rads[2],posy + @r_h - @rads[2], @color1,
+        posx + @rads[2],posy + @r_h , @color1,
+        posx + @r_w - @rads[3],posy + @r_h , @color1,
+        posx + @r_w - @rads[3],posy + @r_h - @rads[3], @color1
+      )
+      draw_quad(
+        posx + @r_w - @rads[1], posy + @rads[1], @color1,
         posx + @r_w, posy + @rads[1], @color1,
-        posx, posy + @r_h - @rads[2], @color1,
-        posx + @r_w, posy + @r_h - @rads[3], @color1
+        posx + @r_w, posy + @r_h - @rads[3], @color1,
+        posx + @r_w - @rads[3], posy + @r_h - @rads[3], @color1
+      )
+      draw_quad(
+        posx + @rads[0], posy + @rads[0], @color1,
+        posx + @r_w - @rads[1], posy + @rads[1], @color1,
+        posx + @r_w - @rads[3], posy + @r_h - @rads[3], @color1,
+        posx + @rads[2], posy + @r_h - @rads[2], @color1
       )
       
-      top_left = Circle.new(@rads[0], 20,@color1)
-      top_right = Circle.new(@rads[1], 20,@color1)
-      bot_left = Circle.new(@rads[2], 20,@color1)
-      bot_right = Circle.new(@rads[3], 20,@color1)
+      previous_point = 0
+      for points in 1..16 do
+        normalize = points.to_f / 16
+        normalize *= 2 * Math::PI
+        dest_rad = 0
+        if points.to_f / 4 <= 1.to_f
+          center_x = posx + @r_w - @rads[1]
+          center_y = posy + @rads[1]
+          dest_rad = @rads[1]
+        elsif points.to_f / 4 <= 2.to_f
+          center_x = posx + @rads[0]
+          center_y = posy + @rads[0]
+          dest_rad = @rads[0]
+        elsif points.to_f / 4 <= 3.to_f
+          center_x = posx + @rads[2]
+          center_y = posy + @r_h - @rads[2]
+          dest_rad = @rads[2]
+        else
+          center_x = posx + @r_w - @rads[3]
+          center_y = posy + @r_h - @rads[3]
+          dest_rad = @rads[3]
+        end
+        if points.to_f / 4 == 1.to_f
+          normalize = Math::PI / 2
+        end
+        if points.to_f / 4 == 2.to_f
+          normalize = Math::PI
+        end
+        if points.to_f / 4 == 3.to_f
+          normalize = Math::PI * 3 / 2
+        end
+        draw_triangle(
+          center_x + Math.cos(previous_point) * dest_rad, center_y - Math.sin(previous_point) * dest_rad, @color1,
+          center_x + Math.cos(normalize) * dest_rad, center_y - Math.sin(normalize) * dest_rad, @color1,
+          center_x, center_y, @color1,
+        )
+        previous_point = normalize
+      end
       
-      top_left.make(posx , posy)
-      top_right.make(posx + @r_w - @rads[1] * 2, posy)
-      bot_left.make(posx, posy + @r_h - @rads[2] * 2)
-      bot_right.make(posx + @r_w - @rads[3] * 2, posy + @r_h - @rads[3] * 2)
+      
+      
       
       if $stroke
         draw_rect(
