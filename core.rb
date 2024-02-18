@@ -264,8 +264,10 @@ class Settings
 
   def write_settings(reset)
     if reset
+      DBG("core", __LINE__, "writing settings #{$def_settings}")
       json = JSON.generate($def_settings)
     else
+      DBG("core", __LINE__, "writing settings #{$settings}")
       json = JSON.generate($settings)
     end
     file = File.open("settings.json", "w")

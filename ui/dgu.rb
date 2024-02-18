@@ -1,3 +1,6 @@
+## this is my custom "GUI" library
+# designed by daniel pishyar Q1 of 2024
+
 require "gosu"
 
 $stroke = false
@@ -329,4 +332,49 @@ class Rectangle < Shapes
       end
     end
   end
+end
+
+class Button < Rectangle
+  
+  # planned to add
+  # is_bold
+  def initialize(r_w, r_h, text, color1, text_size = 5, margin = 5,text_color = Gosu::Color::BLACK, color2 = nil, rads = Array.new(4))
+    @r_w = r_w
+    @r_h = r_h
+    @text = text
+    @text_color = text_color
+    @color1 = color1
+    @color2 = color2
+    @rads = rads
+    @text_size = text_size
+    @margin = margin
+    @posx = nil
+    @posy = nil
+  end
+  
+  def job
+  end
+  
+  def add(posx, posy)
+    @posx = posx
+    @posy = posy
+    make(posx, posy)
+    Gosu::Image.from_text(@text, @text_size, width:@r_w - @margin).draw(posx + @margin, posy + @margin, 0, 1,1,@text_color)
+  end
+
+  def update
+    if not @posx.nil? or not @posy.nil?
+      if not mouse_x > @posx and not mouse_x < @posx + @r_w
+        return 0
+      end
+      if not mouse_y > @posy and not mouse_x < @posy + @r_h
+        return 0
+      end
+    end
+  end
+  
+  def clicked
+    job
+  end
+  
 end

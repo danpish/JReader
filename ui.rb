@@ -17,6 +17,8 @@ $rects = Array.new()
 
 $rand = Random.new()
 
+$button = Button.new(100,100, "woow cool", Gosu::Color::FUCHSIA, 25, 25)
+
 class JReader < Gosu::Window
   def initialize
     super $width, $height
@@ -26,26 +28,9 @@ class JReader < Gosu::Window
   end
 
   def draw
-    if @circle_pos[0] + 40 * 2 + 13 >= $width or @circle_pos[0] - 13 <= 0
-      if @circle_pos[0] < $width / 2
-        @circle_pos[0] = 0 + 13
-      else
-        @circle_pos[0] = $width - 80 - 13
-      end
-      @move_x *= -1 
-    end
-    if @circle_pos[1] + 40 * 2 + 13 >= $height or @circle_pos[1] - 13 <= 0
-      if @circle_pos[1] < $height / 2
-        @circle_pos[1] = 0 + 13
-      else
-        @circle_pos[1] = $height - 80 - 13
-      end
-      @move_y *= -1
-    end
-    @circle_pos[0] += @move_x
-    @circle_pos[1] += @move_y
     stroke(true)
     stroke_weigh(26)
+    $button.add(20,20)
     stroke_color(Gosu::Color::rgb($rand.rand(150) + 100,$rand.rand(150) + 100,$rand.rand(150) + 100))
     $cool.make(@circle_pos[0], @circle_pos[1])
     pop
@@ -54,7 +39,7 @@ class JReader < Gosu::Window
     stroke_color(Gosu::Color::BLUE)
     $rect2.make(300,300)
     pop()
-    puts Gosu.fps
+    self.caption = "fps : #{Gosu.fps}"
   end
 end
 
