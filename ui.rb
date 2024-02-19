@@ -17,7 +17,17 @@ $rects = Array.new()
 
 $rand = Random.new()
 
-$button = Button.new(100,100, "woow cool", Gosu::Color::FUCHSIA, 25, 25)
+class Buttonf < Button
+  
+  def job
+    puts "woow ive been pressed"
+  end
+  
+end
+
+$button = Buttonf.new(100,100, "woow cool", Gosu::Color::FUCHSIA, 25, 25)
+
+$button.corner_data([40,20,30,10])
 
 class JReader < Gosu::Window
   def initialize
@@ -25,6 +35,10 @@ class JReader < Gosu::Window
     @circle_pos = [100,100]
     @move_x = 2
     @move_y = 2
+  end
+
+  def update
+    $button.update(mouse_x, mouse_y)
   end
 
   def draw
@@ -41,6 +55,14 @@ class JReader < Gosu::Window
     pop()
     self.caption = "fps : #{Gosu.fps}"
   end
+  
+  def button_up(key)
+    if key == 256
+      $button.clicked(mouse_x, mouse_y)
+    end
+  end
+  
+  
 end
 
 JReader.new.show

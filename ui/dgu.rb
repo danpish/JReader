@@ -362,18 +362,34 @@ class Button < Rectangle
     Gosu::Image.from_text(@text, @text_size, width:@r_w - @margin).draw(posx + @margin, posy + @margin, 0, 1,1,@text_color)
   end
 
-  def update
-    if not @posx.nil? or not @posy.nil?
-      if not mouse_x > @posx and not mouse_x < @posx + @r_w
-        return 0
-      end
-      if not mouse_y > @posy and not mouse_x < @posy + @r_h
-        return 0
-      end
+  def update(mouse_x, mouse_y)
+    @color1 = Gosu::Color::FUCHSIA
+    if @posx.nil? or @posy.nil?
+      return 0
+    end
+    if not mouse_x > @posx or not mouse_x < @posx + @r_w
+      return 0
+    end
+    if not mouse_y > @posy or not mouse_y < @posy + @r_h
+      return 0
+    end
+    
+    @color1 = Gosu::Color::GREEN
+    if button_down?(256)
+      @color1 = Gosu::Color::GRAY
     end
   end
   
-  def clicked
+  def clicked(mouse_x, mouse_y)
+    if @posx.nil? or @posy.nil?
+      return 0
+    end
+    if not mouse_x > @posx or not mouse_x < @posx + @r_w
+      return 0
+    end
+    if not mouse_y > @posy or not mouse_y < @posy + @r_h
+      return 0
+    end
     job
   end
   
