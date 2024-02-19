@@ -358,7 +358,7 @@ class Button < Rectangle
   def add(posx, posy)
     @posx = posx
     @posy = posy
-    make(posx, posy)
+    make(@posx, @posy)
     Gosu::Image.from_text(@text, @text_size, width:@r_w - @margin).draw(posx + @margin, posy + @margin, 0, 1,1,@text_color)
   end
 
