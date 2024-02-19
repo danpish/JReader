@@ -350,6 +350,7 @@ class Button < Rectangle
     @margin = margin
     @posx = nil
     @posy = nil
+    @old_color = color1
   end
   
   def job
@@ -363,7 +364,7 @@ class Button < Rectangle
   end
 
   def update(mouse_x, mouse_y)
-    @color1 = Gosu::Color::FUCHSIA
+    @color1 = @old_color
     if @posx.nil? or @posy.nil?
       return 0
     end
@@ -374,9 +375,26 @@ class Button < Rectangle
       return 0
     end
     
-    @color1 = Gosu::Color::GREEN
+    @RGB = [@color1.red(),@color1.green(),@color1.blue()]
+    @DEST_RGB = Array.new(3)
+    for color in 0..2 do
+      @DEST_RGB[color] = @RGB[color] + 100
+      if @DEST_RGB[color] > 255
+        @DEST_RGB[color] = 255
+      end
+    end
+    
+    @color1 = Gosu::Color::rgb(@DEST_RGB[0],@DEST_RGB[1],@DEST_RGB[2])
+    
     if button_down?(256)
-      @color1 = Gosu::Color::GRAY
+      
+      for color in 0..2 do
+        @DEST_RGB[color] = @RGB[color] - 100
+        if @DEST_RGB[color] < 0
+          @DEST_RGB[color] = 0
+        end
+      end
+      @color1=Gosu::Color::rgb(@DEST_RGB[0],@DEST_RGB[1],@DEST_RGB[2])
     end
   end
   

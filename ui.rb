@@ -15,6 +15,16 @@ $truerect = Rectangle.new(350, 100, Gosu::Color::WHITE)
 $truerect.corner_data([40,20,30,10])
 $rects = Array.new()
 
+$pretend_text = Rectangle.new(400,100,Gosu::Color::GRAY)
+$pretend_button = Button.new(150,100,"cool",Gosu::Color::CYAN, 40, 20)
+$pretend_text.corner_data([10,0,10,0])
+$pretend_button.corner_data([0,10,0,10])
+$blank_border = Rectangle.new(550, 100,Gosu::Color::NONE)
+$blank_border.corner_data([10,10,10,10])
+
+$transparent_rect = Rectangle.new(350, 200, Gosu::Color::NONE)
+$transparent_rect.corner_data([20,20,20,20])
+
 $button_move_pos = [400,400]
 
 $rand = Random.new()
@@ -52,6 +62,7 @@ class JReader < Gosu::Window
   def update
     $button.update(mouse_x, mouse_y)
     $button_move.update(mouse_x, mouse_y)
+    $pretend_button.update(mouse_x, mouse_y)
   end
 
   def draw
@@ -67,9 +78,17 @@ class JReader < Gosu::Window
     stroke_color(Gosu::Color::BLUE)
     $rect2.make(300,300)
     pop
+    stroke(true)
+    stroke_weigh(4)
+    stroke_color(Gosu::Color::BLUE)
     self.caption = "fps : #{Gosu.fps}"
     $button_move_pos[0] += 0.5
     $button_move_pos[1] += 0.5
+    $pretend_text.make(200,50)
+    $pretend_button.add(200+400,50)
+    stroke_weigh(10)
+    stroke_color(Gosu::Color::RED)
+    $blank_border.make(200,50)
   end
   
   def button_up(key)
