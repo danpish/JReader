@@ -412,3 +412,85 @@ class Button < Rectangle
   end
   
 end
+
+class Slider < Rectangle
+  def initialize(r_h, min, max)
+    @r_h = r_h
+    @min = min
+    @max = max
+    @value = min
+    @pos_x = nil
+    @pos_y = nil
+    @rect_color = Gosu::Color::GRAY
+    @persentage = 0.0
+    @is_mouse_on = false
+    @mouse_on_scroll = false
+  end
+  
+  def make(posx, posy)
+    @pos_x = posx
+    @pos_y = posy
+    draw_rect(
+      posx, posy, 20, @r_h,Gosu::Color::WHITE
+    )
+    draw_triangle(
+      posx + 10, posy + 5 , Gosu::Color::GRAY,
+      posx + 5, posy + 15, Gosu::Color::GRAY,
+      posx + 15, posy + 15, Gosu::Color::GRAY
+    )
+    draw_triangle(
+      posx + 10, posy + @r_h - 5 , Gosu::Color::GRAY,
+      posx + 5, posy + @r_h - 15, Gosu::Color::GRAY,
+      posx + 15, posy + @r_h - 15, Gosu::Color::GRAY
+    )
+    draw_rect(
+      posx + 1, @value + posy + 20,
+      18,18,
+      @rect_color
+    )
+  end
+  
+  def change(mouse_x, mouse_y, mouse_down)
+    @rect_color = Gosu::Color::GRAY
+    if not @mouse_on_scroll
+      if @pos_x.nil? or @pos_y.nil?
+        return 0
+      end
+      if not mouse_x > @pos_x + 1 or not mouse_x < @pos_x + 18
+        return 0
+      end
+      if not mouse_y > @pos_y + 20 + @value or not mouse_y < @pos_y + 38 + @value
+        return 0
+      end
+    end
+    
+    @mouse_on_scroll = true
+    
+    if not mouse_down
+      @mouse_on_scroll = false
+      return 0  
+    end
+    if not @mouse_on_scroll
+      return 0
+    end
+    
+    @rect_color = Gosu::Color::RED
+    @value = mouse_y - @pos_y - 25
+    if @value < 0
+      @value = 0
+    end
+    if @value > @r_h - 60
+      @value = @r_h - 60
+    end
+    @persentage = @value / (@r_h - 60) * (@max - @min) + @min
+    on_change(@persentage)
+  end
+  
+  def on_change(pers)
+    puts pers
+  end
+  
+  def value
+    return @value
+  end
+end
