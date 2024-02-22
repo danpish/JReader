@@ -96,6 +96,49 @@ class Circle < Shapes
   end
 end
 
+class Ellipse < Shapes
+  def initialize(radious1, radious2, res, color1, color2 = nil)
+    @radious1 = radious1
+    @radious2 = radious2
+    @res = res
+    @color1 = color1
+    @color2 = color2
+  end
+
+  def make(posx, posy)
+    previous_point = 0
+    center_x = posx + @radious1
+    center_y = posy + @radious2
+    for each_point in 1..@res
+      normalize = each_point.to_f / @res
+      normalize *= 2 * Math::PI
+      if @color2.nil?
+        draw_triangle(
+          Math.cos(previous_point) * @radious1 + center_x, Math.sin(previous_point) * @radious2 + center_y, @color1,
+          Math.cos(normalize) * @radious1 + center_x, Math.sin(normalize) * @radious2 + center_y, @color1,
+          center_x, center_y, @color1
+        )
+      end
+      previous_point = normalize
+    end
+    
+    if $stroke
+      for points in 1..@res do
+          normalize = points.to_f / @res
+          normalize *= 2 * Math::PI
+          draw_quad(
+            center_x + Math.cos(previous_point) * @radious1 - $stroke_weigh * Math.cos(previous_point) / 2,center_y - Math.sin(previous_point) * @radious2 + $stroke_weigh * Math.sin(previous_point) / 2,$stroke_color,
+            center_x + Math.cos(previous_point) * @radious1 + $stroke_weigh * Math.cos(previous_point) / 2,center_y - Math.sin(previous_point) * @radious2 - $stroke_weigh * Math.sin(previous_point) / 2,$stroke_color,
+            center_x + Math.cos(normalize) * @radious1 + $stroke_weigh * Math.cos(normalize) / 2,center_y - Math.sin(normalize) * @radious2 - $stroke_weigh * Math.sin(normalize) / 2,$stroke_color,
+            center_x + Math.cos(normalize) * @radious1 - $stroke_weigh * Math.cos(normalize) / 2,center_y - Math.sin(normalize) * @radious2 + $stroke_weigh * Math.sin(normalize) / 2,$stroke_color   
+          )
+          previous_point = normalize
+        end
+    end
+    
+  end
+end
+
 class Rectangle < Shapes
   def initialize(r_w, r_h, color1, color2 = nil, rads = Array.new(4))
     @r_w = r_w

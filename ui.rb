@@ -6,7 +6,7 @@ $height = 600
 $circle_pos = [100,100]
     
 
-$cool = Circle.new(40, 25, Gosu::Color::CYAN)
+$cool = Ellipse.new(40, 20, 25, Gosu::Color::CYAN)
 $rect = Rectangle.new(100, 100, Gosu::Color::CYAN)
 
 $rect.corner_data([20,5,10,0])
