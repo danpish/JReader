@@ -385,6 +385,7 @@ class Button < Rectangle
     @r_w = r_w
     @r_h = r_h
     @text = text
+    @text_image = Gosu::Image.from_text(text, text_size, width:r_w - margin)
     @text_color = text_color
     @color1 = color1
     @color2 = color2
@@ -403,7 +404,7 @@ class Button < Rectangle
     @posx = posx
     @posy = posy
     make(@posx, @posy)
-    Gosu::Image.from_text(@text, @text_size, width:@r_w - @margin).draw(posx + @margin, posy + @margin, 0, 1,1,@text_color)
+    @text_image.draw(posx + @margin, posy + @margin, 0, 1,1,@text_color)
   end
 
   def update(mouse_x, mouse_y)

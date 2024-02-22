@@ -1,4 +1,5 @@
 require "./ui/dgu"
+require "open-uri"
 
 $width = 800
 $height = 600
@@ -71,6 +72,15 @@ class JReader < Gosu::Window
     super $width, $height
     @move_x = 2
     @move_y = 2
+    if not File.directory?("temp")
+      Dir.mkdir("temp")
+    end
+    if not File.exist?("temp/kang.png")
+      @kango_image = URI.parse("https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_Kangaroos_at_Sturt_National_Park_NSW.jpg").open().read
+      File.open("temp/kang.png", "wb").write(@kango_image)
+    end
+    @kang_image = Gosu::Image.new("temp/kang.png")
+    puts @kang_image.width,@kang_image.height 
   end
 
   def update
