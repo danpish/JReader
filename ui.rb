@@ -1,5 +1,4 @@
 require "./ui/dgu"
-require "open-uri"
 
 $width = 800
 $height = 600
@@ -25,6 +24,8 @@ $pretend_text.corner_data([10,0,10,0])
 $pretend_button.corner_data([0,10,0,10])
 $blank_border = Rectangle.new(550, 100,Gosu::Color::NONE)
 $blank_border.corner_data([10,10,10,10])
+
+$earth = Image.new("http://127.0.0.1:8000/pinterest_1092122978375754909.gif", "earth", true)
 
 class Circhng < Slider
 
@@ -72,15 +73,10 @@ class JReader < Gosu::Window
     super $width, $height
     @move_x = 2
     @move_y = 2
-    if not File.directory?("temp")
-      Dir.mkdir("temp")
+    if File.directory?("temp")
+      FileUtils::rm_r("temp")
     end
-    if not File.exist?("temp/kang.png")
-      @kango_image = URI.parse("https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_Kangaroos_at_Sturt_National_Park_NSW.jpg").open().read
-      File.open("temp/kang.png", "wb").write(@kango_image)
-    end
-    @kang_image = Gosu::Image.new("temp/kang.png")
-    puts @kang_image.width,@kang_image.height 
+    FileUtils::mkdir("temp")
   end
 
   def update
@@ -115,12 +111,16 @@ class JReader < Gosu::Window
     $slider.make(100,150)
     stroke_color(Gosu::Color::RED)
     $blank_border.make(200,50)
+    if not $earth.got_image().nil?
+      $earth.make(100,100, 640.0 / $earth.got_image().width, 480.0 / $earth.got_image().height)
+    end
   end
   
   def button_up(key)
     if key == 256
       $button.clicked(mouse_x, mouse_y)
-    $button_move.clicked(mouse_x, mouse_y)
+      $button_move.clicked(mouse_x, mouse_y)
+      $earth.reload()
     end
   end
   
