@@ -4,7 +4,7 @@ $width = 800
 $height = 600
 
 $circle_pos = [100,100]
-    
+  
 
 $cool = Ellipse.new(40, 20, 25, Gosu::Color::CYAN)
 $rect = Rectangle.new(100, 100, Gosu::Color::CYAN)
@@ -25,7 +25,7 @@ $pretend_button.corner_data([0,10,0,10])
 $blank_border = Rectangle.new(550, 100,Gosu::Color::NONE)
 $blank_border.corner_data([10,10,10,10])
 
-$earth = Image.new("http://127.0.0.1:8000/pinterest_1092122978375754909.gif", "earth", true)
+$earth = Image.new("http://www.pokemasters.net/pokedex/images/pokemon/28000.png", "earth", true)
 
 class Circhng < Slider
 
@@ -112,7 +112,7 @@ class JReader < Gosu::Window
     stroke_color(Gosu::Color::RED)
     $blank_border.make(200,50)
     if not $earth.got_image().nil?
-      $earth.make(100,100, 640.0 / $earth.got_image().width, 480.0 / $earth.got_image().height)
+      $earth.make(100,100, 640, 480)
     end
   end
   
@@ -123,7 +123,6 @@ class JReader < Gosu::Window
       $earth.reload()
     end
   end
-  
   
 end
 

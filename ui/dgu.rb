@@ -595,12 +595,26 @@ class Image < Gosu::Image
     end
   end
 
-  def make(posx, posy, scalex = 1, scaley = 1)
+  def make(posx, posy, width = nil, height = nil)
     if not @got_image.nil?
       if not @did_reload
         @did_reload = true
         reload
       end
+      scalex, scaley= 1,1
+      if not width.nil?
+        if not width.class == Float
+          width = width.to_f
+        end
+        scalex = width / @got_image.width
+      end
+      if not height.nil?
+        if not height.class == Float
+          height = height.to_f
+        end
+        scaley = height / @got_image.height
+      end
+      
       @got_image.draw(posx, posy, 0, scalex, scaley)
     elsif @downloaded_image == 0
       @loading_image.draw(posx, posy)
