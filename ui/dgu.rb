@@ -54,6 +54,10 @@ class Shapes < Gosu::Window
   @shader_info = "none" # not used yet
   @visible = true
 
+  def visible(set)
+    @visible = set
+  end
+
   def color(color)
     @color1 = color
   end
@@ -68,6 +72,9 @@ class Circle < Shapes
   end
 
   def make(posx, posy)
+    if not @visible
+      return 0
+    end
     previous_point = 0
     center_x = posx + @radious
     center_y = posy + @radious
@@ -110,6 +117,9 @@ class Ellipse < Shapes
   end
 
   def make(posx, posy)
+    if not @visible
+      return 0
+    end
     previous_point = 0
     center_x = posx + @radious1
     center_y = posy + @radious2
@@ -150,7 +160,7 @@ class Rectangle < Shapes
     @color2 = color2
     @rads = rads
     @r_scale = 1
-
+    @visible = true  
     @round_corners = false
   end
 
@@ -190,6 +200,9 @@ class Rectangle < Shapes
   end
   
   def make(posx, posy)
+    if not @visible
+      return 0
+    end
     @round_corners = true
     for corner in @rads
       if corner.nil?
@@ -404,12 +417,16 @@ class Button < Rectangle
     @posx = nil
     @posy = nil
     @old_color = color1
+    @visible = true
   end
 
   def job
   end
 
   def add(posx, posy)
+    if not @visible
+      return 0
+    end
     @posx = posx
     @posy = posy
     make(@posx, @posy)
@@ -451,6 +468,9 @@ class Button < Rectangle
   end
 
   def clicked(mouse_x, mouse_y)
+    if not @visible
+      return 0
+    end
     if @posx.nil? or @posy.nil?
       return 0
     end
@@ -479,6 +499,9 @@ class Slider < Rectangle
   end
 
   def make(posx, posy)
+    if not @visible
+      return 0
+    end
     @pos_x = posx
     @pos_y = posy
     draw_rect(
@@ -605,6 +628,9 @@ class Image < Gosu::Image
   end
 
   def make(posx, posy, width = nil, height = nil)
+    if not @visible
+      return 0
+    end
     if not @got_image.nil?
       if not @did_reload
         @did_reload = true
@@ -645,12 +671,17 @@ class TextIn < Gosu::TextInput
     @padding = padding
     @back_color = back_color
     @max_letters = max_letters
+    @visible = true
     if @max_letter.nil?
       @max_letters = r_w / @text_size
     end
     @r_w = r_w
     @r_h = r_h
     @shape = Rectangle.new(@r_w, @r_h, @back_color)
+  end
+  
+  def visible(set)
+    @visible = set
   end
   
   def corner_data(rads)
@@ -670,6 +701,9 @@ class TextIn < Gosu::TextInput
   end
   
   def make(window, posx, posy)
+    if not @visible
+      return 0 
+    end
     @posx = posx
     @posy = posy
     @shape.make(posx, posy)
@@ -688,6 +722,9 @@ class TextIn < Gosu::TextInput
   def clicked(mouse_x, mouse_y)
     if $active_text == self
       $active_text = nil
+    end
+    if not @visible
+      return 0
     end
     if @posx.nil? or @posy.nil?
       return 0
