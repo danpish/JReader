@@ -11,6 +11,8 @@ $stroke = false
 $stroke_weigh = 5
 $stroke_color = Gosu::Color::RED
 
+$active_text = nil
+
 def stroke(do_QM)
   $stroke = do_QM
 end
@@ -179,7 +181,14 @@ class Rectangle < Shapes
       return 44
     end
   end
-
+  
+  def corner_data?()
+    if @rads[0].nil?
+      nil
+    end
+    [@rads[0],@rads[1],@rads[2],@rads[3]]
+  end
+  
   def make(posx, posy)
     @round_corners = true
     for corner in @rads
@@ -625,5 +634,70 @@ class Image < Gosu::Image
   
   def got_image
     @got_image
+  end
+end
+
+class TextIn < Gosu::TextInput
+  def initialize(r_w, r_h, def_text,text_size, max_letters = nil, padding = 5, back_color = Gosu::Color::GRAY, text_color = Gosu::Color::WHITE)
+    super()
+    self.text = def_text
+    @text_size = text_size
+    @padding = padding
+    @back_color = back_color
+    @max_letters = max_letters
+    if @max_letter.nil?
+      @max_letters = r_w / @text_size
+    end
+    @r_w = r_w
+    @r_h = r_h
+    @shape = Rectangle.new(@r_w, @r_h, @back_color)
+  end
+  
+  def corner_data(rads)
+    @shape.corner_data(rads)
+  end
+  
+  def active_check(win)
+    @back_color = Gosu::Color::GRAY
+    if win.text_input == self
+      @back_color = Gosu::Color::rgb(200,200,200)
+    end
+    cornet_data = @shape.corner_data?
+    @shape = Rectangle.new(@r_w, @r_h, @back_color)
+    if not cornet_data.nil?
+      @shape.corner_data(cornet_data)
+    end
+  end
+  
+  def make(window, posx, posy)
+    @posx = posx
+    @posy = posy
+    @shape.make(posx, posy)
+    Gosu::Image.from_text(self.text, @text_size, width: @text_size * @max_letters - @padding * 2).draw(posx + @padding, posy + @padding)
+    active_check(window)
+  end
+  
+  def get_width
+    @text_size * @max_letters
+  end
+  
+  def get_height
+    @text_size
+  end
+  
+  def clicked(mouse_x, mouse_y)
+    if $active_text == self
+      $active_text = nil
+    end
+    if @posx.nil? or @posy.nil?
+      return 0
+    end
+    if not mouse_x > @posx or not mouse_x < @posx + @r_w
+      return 0
+    end
+    if not mouse_y > @posy or not mouse_y < @posy + @r_h
+      return 0
+    end
+    $active_text = self
   end
 end

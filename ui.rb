@@ -17,9 +17,16 @@ $rect2 = Rectangle.new(100, 100, Gosu::Color::YELLOW)
 $truerect = Rectangle.new(350, 100, Gosu::Color::WHITE)
 $truerect.corner_data([40,20,30,10])
 $rects = Array.new()
+ 
+$pretend_text = TextIn.new(400,100,"woow",20)
 
-$pretend_text = Rectangle.new(400,100,Gosu::Color::GRAY)
-$pretend_button = Button.new(150,100,"cool",Gosu::Color::CYAN, 40, 20)
+class Dosearch < Button
+  def job
+    puts $pretend_text.text
+  end
+end
+
+$pretend_button = Dosearch.new(150,100,"cool",Gosu::Color::CYAN, 40, 20)
 $pretend_text.corner_data([10,0,10,0])
 $pretend_button.corner_data([0,10,0,10])
 $blank_border = Rectangle.new(550, 100,Gosu::Color::NONE)
@@ -68,6 +75,9 @@ $button_move = Imove.new(150,100, "I Move", Gosu::Color::FUCHSIA, 25,10)
 $button.corner_data([40,20,30,10])
 $button_move.corner_data([10,10,10,10])
 
+$text_in = TextIn.new(400, 20, "woow", 20)
+$text_in.corner_data([10,10,10,10])
+
 class JReader < Gosu::Window
   def initialize
     super $width, $height
@@ -84,6 +94,7 @@ class JReader < Gosu::Window
     $button_move.update(mouse_x, mouse_y)
     $pretend_button.update(mouse_x, mouse_y)
     $slider.change(mouse_x, mouse_y, button_down?(256))
+    self.text_input = $active_text
   end
 
   def draw
@@ -105,7 +116,7 @@ class JReader < Gosu::Window
     self.caption = "fps : #{Gosu.fps}"
     $button_move_pos[0] += 0.5
     $button_move_pos[1] += 0.5
-    $pretend_text.make(200,50)
+    $pretend_text.make(self,200,50)
     $pretend_button.add(200+400,50)
     stroke_weigh(10)
     $slider.make(100,150)
@@ -114,6 +125,7 @@ class JReader < Gosu::Window
     if not $earth.got_image().nil?
       $earth.make(100,100, 640, 480)
     end
+    $text_in.make(self, 250, 250)
   end
   
   def button_up(key)
@@ -121,6 +133,9 @@ class JReader < Gosu::Window
       $button.clicked(mouse_x, mouse_y)
       $button_move.clicked(mouse_x, mouse_y)
       $earth.reload()
+      $text_in.clicked(mouse_x, mouse_y)
+      $pretend_text.clicked(mouse_x, mouse_y)
+      $pretend_button.clicked(mouse_x, mouse_y)
     end
   end
   
