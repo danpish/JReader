@@ -57,7 +57,7 @@ class Shapes < Gosu::Window
   def visible(set)
     @visible = set
   end
-  
+
   def visible?
     return @visible
   end
@@ -164,7 +164,7 @@ class Rectangle < Shapes
     @color2 = color2
     @rads = rads
     @r_scale = 1
-    @visible = true  
+    @visible = true
     @round_corners = false
   end
 
@@ -195,14 +195,14 @@ class Rectangle < Shapes
       return 44
     end
   end
-  
+
   def corner_data?()
     if @rads[0].nil?
       nil
     end
-    [@rads[0],@rads[1],@rads[2],@rads[3]]
+    [@rads[0], @rads[1], @rads[2], @rads[3]]
   end
-  
+
   def make(posx, posy)
     if not @visible
       return 0
@@ -601,36 +601,28 @@ class Image < Gosu::Image
           end
         end
       end
+      @downloaded_image = 2
       if succes
+        @downloaded_image = 1
         File.open("temp/#{name}.#{filetype}", "wb").write(d_file)
+        @filetype = filetype
       end
+      d_file = nil
     rescue
       puts "IMAGE LOADING CODE BLOCK FAILED"
       succes = false
     end
-    if succes
-      @filetype = filetype
-      while @got_image.nil?
-        begin 
-          @got_image = Gosu::Image.new("temp/#{name}.#{filetype}")
-        rescue
-          @got_image = nil
-          sleep(0.5)
-        end
-      end
-    else
-      @downloaded_image = 2
-    end
   end
-  
+
   def reload
     begin
+      @got_image = nil
       @got_image = Gosu::Image.new("temp/#{@image_name}.#{@filetype}")
     rescue
       puts "ERROR DGU #{__LINE__} image reload failed"
     end
   end
-  
+
   def initialize(image_link, image_name, is_online = true)
     @image_name = image_name
     if not File.directory?("temp")
@@ -642,49 +634,70 @@ class Image < Gosu::Image
     @failed_image = Gosu::Image.from_text("failed :C", 20)
     @did_reload = false
     if is_online
-      Thread.new{download_image(image_link, image_name)}
+      Thread.new { download_image(image_link, image_name) }
     end
     @visible = true
   end
 
-  def make(posx, posy, width = nil, height = nil)
+  def width
+    if @got_image.class == Gosu::Image
+      @got_image.width
+    else
+      0
+    end
+  end
+
+  def height
+    if @got_image.class == Gosu::Image
+      @got_image.height
+    else
+      0
+    end
+  end
+
+  def make(posx, posy, width = nil, height = nil, got_res = false)
     if not @visible
       return 0
     end
-    if not @got_image.nil?
+    if @downloaded_image == 1
       if not @did_reload
         @did_reload = true
         reload
       end
-      scalex, scaley= 1,1
-      if not width.nil?
-        if not width.class == Float
-          width = width.to_f
+      scalex, scaley = 1, 1
+      if not @got_image.nil?
+        if got_res
+          if not width.nil?
+            if not width.class == Float
+              width = width.to_f
+            end
+            scalex = width / @got_image.width
+          end
+          if not height.nil?
+            if not height.class == Float
+              height = height.to_f
+            end
+            scaley = height / @got_image.height
+          end
+        else
+          scalex, scaley = width, height
         end
-        scalex = width / @got_image.width
+        @got_image.draw(posx, posy, 0, scalex, scaley)
       end
-      if not height.nil?
-        if not height.class == Float
-          height = height.to_f
-        end
-        scaley = height / @got_image.height
-      end
-      
-      @got_image.draw(posx, posy, 0, scalex, scaley)
     elsif @downloaded_image == 0
       @loading_image.draw(posx, posy)
     else
       @failed_image.draw(posx, posy)
     end
   end
-  
+
   def got_image
     @got_image
   end
 end
 
 class TextIn < Gosu::TextInput
-  def initialize(r_w, r_h, def_text,text_size, max_letters = nil, padding = 5, back_color = Gosu::Color::GRAY, text_color = Gosu::Color::WHITE)
+  def initialize(r_w, r_h, def_text, text_size, max_letters = nil, padding = 5, back_color = Gosu::Color::GRAY, text_color = Gosu::Color::WHITE)
     super()
     self.text = def_text
     @text_size = text_size
@@ -699,19 +712,19 @@ class TextIn < Gosu::TextInput
     @r_h = r_h
     @shape = Rectangle.new(@r_w, @r_h, @back_color)
   end
-  
+
   def visible(set)
     @visible = set
   end
-  
+
   def corner_data(rads)
     @shape.corner_data(rads)
   end
-  
+
   def active_check(win)
     @back_color = Gosu::Color::GRAY
     if win.text_input == self
-      @back_color = Gosu::Color::rgb(200,200,200)
+      @back_color = Gosu::Color::rgb(200, 200, 200)
     end
     cornet_data = @shape.corner_data?
     @shape = Rectangle.new(@r_w, @r_h, @back_color)
@@ -719,10 +732,10 @@ class TextIn < Gosu::TextInput
       @shape.corner_data(cornet_data)
     end
   end
-  
+
   def make(window, posx, posy)
     if not @visible
-      return 0 
+      return 0
     end
     @posx = posx
     @posy = posy
@@ -730,15 +743,15 @@ class TextIn < Gosu::TextInput
     Gosu::Image.from_text(self.text, @text_size, width: @text_size * @max_letters - @padding * 2).draw(posx + @padding, posy + @padding)
     active_check(window)
   end
-  
+
   def get_width
     @text_size * @max_letters
   end
-  
+
   def get_height
     @text_size
   end
-  
+
   def clicked(mouse_x, mouse_y)
     if $active_text == self
       $active_text = nil

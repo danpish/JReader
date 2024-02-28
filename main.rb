@@ -5,20 +5,20 @@ $JR = JR.new
 $JRSetting = Settings.new
 $JRSetting.load_settings
 
-$width , $height = 1024, 720
+$width, $height = 1024, 720
 
 $RCG = 30
 
 $position = 0
 
-$GForeground_color = Gosu::Color::rgb(33,48,54)
-$GStroke_color = Gosu::Color::rgb(43,58,64)
+$GForeground_color = Gosu::Color::rgb(33, 48, 54)
+$GStroke_color = Gosu::Color::rgb(43, 58, 64)
 
 $starter_back = Rectangle.new($width / 2, 200, $GForeground_color)
-$starter_back.corner_data([$RCG,$RCG,$RCG,$RCG])
+$starter_back.corner_data([$RCG, $RCG, $RCG, $RCG])
 
 $search_subreddit = TextIn.new($width / 2 - 20 - 100, 100, "subreddit", 40, nil, 25)
-$search_subreddit.corner_data([$RCG,0,$RCG,0])
+$search_subreddit.corner_data([$RCG, 0, $RCG, 0])
 
 $posts_background = nil
 $post_titles = nil
@@ -31,7 +31,6 @@ class ScrollThrough < Slider
 end
 
 class SubredditSearchButton < Button
-  
   def job
     puts $JR.get_subreddit($search_subreddit.text)
     puts $JR.return_loaded_json.nil?
@@ -40,11 +39,10 @@ class SubredditSearchButton < Button
       results
     end
   end
-  
 end
 
-$subreddit_search_button = SubredditSearchButton.new(100, 100, "search", Gosu::Color::CYAN, 25 , 30)
-$subreddit_search_button.corner_data([0,$RCG,0,$RCG])
+$subreddit_search_button = SubredditSearchButton.new(100, 100, "search", Gosu::Color::CYAN, 25, 30)
+$subreddit_search_button.corner_data([0, $RCG, 0, $RCG])
 
 def hide_main_menu
   $subreddit_search_button.visible(false)
@@ -52,8 +50,8 @@ def hide_main_menu
   $starter_back.visible(false)
 end
 
-$subreddit_about = Rectangle.new(200, 400,$GForeground_color)
-$subreddit_about.corner_data([$RCG,$RCG,$RCG,$RCG])
+$subreddit_about = Rectangle.new(200, 400, $GForeground_color)
+$subreddit_about.corner_data([$RCG, $RCG, $RCG, $RCG])
 $subreddit_about.visible(false)
 
 def results
@@ -61,10 +59,10 @@ def results
   $posts_background = Array.new(0)
   $post_titles = Array.new(0)
   $post_images = Array.new(0)
-  for post in 0..$JR.return_loaded_json["links"].length - 1 do
+  for post in 0..$JR.return_loaded_json["links"].length - 1
     $posts_background.push(Rectangle.new($width - 200 - 45, 440, $GForeground_color))
-    $posts_background[post].corner_data([$RCG,$RCG,$RCG,$RCG])
-    $post_titles.push(Gosu::Image.from_text($JR.return_loaded_json["links"][post]["title"], 20 , width: $width - 200 - 45))
+    $posts_background[post].corner_data([$RCG, $RCG, $RCG, $RCG])
+    $post_titles.push(Gosu::Image.from_text($JR.return_loaded_json["links"][post]["title"], 20, width: $width - 200 - 45))
     if not $JR.return_loaded_json["links"][post]["images"].nil?
       $post_images.push(Image.new($JR.return_full_image(post), post.to_s))
     else
@@ -77,20 +75,21 @@ end
 class JReader < Gosu::Window
   def initialize
     super $width, $height
+    self.caption = "jreader - dev"
     @frames_passed = 0
     if File.directory?("temp")
       FileUtils::rm_r("temp")
     end
     FileUtils::mkdir("temp")
   end
-  
+
   def update
     $subreddit_search_button.update(mouse_x, mouse_y)
     if not $slide.nil?
       $slide.change(mouse_x, mouse_y, button_down?(256))
     end
   end
-  
+
   def draw
     @frames_passed += 1
     stroke true
@@ -98,29 +97,36 @@ class JReader < Gosu::Window
     stroke_color $GStroke_color
     $starter_back.make($width / 2 - ($width / 4), 10)
     $search_subreddit.make(self, $width / 2 - ($width / 4) + 10, 60)
-    $subreddit_search_button.add($width - 10 - 100 - ($width / 4) , 60)
-    $subreddit_about.make($width - 200 - 10 , 10)
+    $subreddit_search_button.add($width - 10 - 100 - ($width / 4), 60)
+    $subreddit_about.make($width - 200 - 10, 10)
     if $posts_background.class == Array and $subreddit_about.visible?
       curr_post = 0
-      for post in $posts_background do
+      for post in $posts_background
         $posts_background[curr_post].make(10, 10 * curr_post + curr_post * 440 - $position)
-        $post_titles[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 10)
         if not $post_images[curr_post].nil?
-          $post_images[curr_post].make(20 , 10 * curr_post + curr_post * 440 - $position + 30, 600, 400)
+          aspect_size = 1
+          if $post_images[curr_post].width > $width - 200 - 65
+            aspect_size = ($width - 200 - 65) / $post_images[curr_post].width.to_f
+          end
+          if $post_images[curr_post].height * aspect_size > 420 - $post_titles[curr_post].height
+            aspect_size = (420.0 - $post_titles[curr_post].height) / $post_images[curr_post].height
+          end
+          $post_images[curr_post].make(20, 10 * curr_post + curr_post * 440 - $position + 10 + $post_titles[curr_post].height, aspect_size, aspect_size, false)
           if @frames_passed / 60 == 30
             $post_images[curr_post].reload
           end
         end
+        $post_titles[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 10)
         curr_post += 1
       end
-      $slide.make($width - 200 - 35 , 10)
+      $slide.make($width - 200 - 35, 10)
     end
     if @frames_passed / 60 == 30
       @frames_passed = 0
     end
     pop
   end
-  
+
   def button_up(key)
     if key == 256
       $search_subreddit.clicked(mouse_x, mouse_y)
