@@ -188,9 +188,14 @@ class JR
 
   def return_full_image(post)
     if $set_inst.class != String
-      ERR("core", __init__, "instance is not set correctly")
+      ERR("core", __LINE__, "instance is not set correctly")
       return false
     end
+    if $loaded_json["links"][post]["images"].nil? or $loaded_json["links"][post]["images"]["preview"].nil?
+      DBG("core", __LINE__, "post does not have any image")
+      return false
+    end
+    DBG("core", __LINE__, $loaded_json["links"][post]["images"]["preview"])
     return $set_inst + $loaded_json["links"][post]["images"]["preview"]
   end
 end

@@ -5,7 +5,7 @@ require "gosu"
 require "open-uri"
 require "fileutils"
 
-$known_filetypes = ["png", "jpg", "gif"]
+$known_filetypes = ["png", "jpg", "gif", "jpeg"]
 
 $stroke = false
 $stroke_weigh = 5
@@ -56,6 +56,10 @@ class Shapes < Gosu::Window
 
   def visible(set)
     @visible = set
+  end
+  
+  def visible?
+    return @visible
   end
 
   def color(color)
@@ -496,6 +500,7 @@ class Slider < Rectangle
     @persentage = 0.0
     @is_mouse_on = false
     @mouse_on_scroll = false
+    @visible = true
   end
 
   def make(posx, posy)
@@ -584,7 +589,21 @@ class Image < Gosu::Image
           succes = true
         end
       end
-      File.open("temp/#{name}.#{filetype}", "wb").write(d_file)
+      if not succes
+        filetype = ""
+        for char in 1..4
+          filetype = url[-char] + filetype
+        end
+        puts filetype
+        for formats in $known_filetypes
+          if filetype == formats
+            succes = true
+          end
+        end
+      end
+      if succes
+        File.open("temp/#{name}.#{filetype}", "wb").write(d_file)
+      end
     rescue
       puts "IMAGE LOADING CODE BLOCK FAILED"
       succes = false
@@ -625,6 +644,7 @@ class Image < Gosu::Image
     if is_online
       Thread.new{download_image(image_link, image_name)}
     end
+    @visible = true
   end
 
   def make(posx, posy, width = nil, height = nil)
