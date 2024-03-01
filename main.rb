@@ -59,17 +59,18 @@ def results
   $posts_background = Array.new(0)
   $post_titles = Array.new(0)
   $post_images = Array.new(0)
+
   for post in 0..$JR.return_loaded_json["links"].length - 1
     $posts_background.push(Rectangle.new($width - 200 - 45, 440, $GForeground_color))
     $posts_background[post].corner_data([$RCG, $RCG, $RCG, $RCG])
     $post_titles.push(Gosu::Image.from_text($JR.return_loaded_json["links"][post]["title"], 20, width: $width - 200 - 45))
     if not $JR.return_loaded_json["links"][post]["images"].nil?
-      $post_images.push(Image.new($JR.return_full_image(post), post.to_s))
+      #$post_images.push(Image.new($JR.return_full_image(post), post.to_s))
     else
       $post_images.push(nil)
     end
   end
-  $slide = ScrollThrough.new($height - 20, 0, 440 * $posts_background.length)
+  $slide = ScrollThrough.new($height - 20, 0, (440 + 10) * ($posts_background.length - 1))
 end
 
 class JReader < Gosu::Window
@@ -101,24 +102,32 @@ class JReader < Gosu::Window
     $subreddit_about.make($width - 200 - 10, 10)
     if $posts_background.class == Array and $subreddit_about.visible?
       curr_post = 0
+      dbg_hidden_posts = 0
       for post in $posts_background
-        $posts_background[curr_post].make(10, 10 * curr_post + curr_post * 440 - $position)
-        if not $post_images[curr_post].nil?
-          aspect_size = 1
-          if $post_images[curr_post].width > $width - 200 - 65
-            aspect_size = ($width - 200 - 65) / $post_images[curr_post].width.to_f
+        post_pos = 10 * curr_post + curr_post * 440
+        if post_pos + 440 > $position and post_pos  < $position + $width
+          $posts_background[curr_post].make(10, post_pos - $position)
+          if not $post_images[curr_post].nil?
+            aspect_size = 1
+            if $post_images[curr_post].width > $width - 200 - 65
+              aspect_size = ($width - 200 - 65) / $post_images[curr_post].width.to_f
+            end
+            if $post_images[curr_post].height * aspect_size > 420 - $post_titles[curr_post].height
+              aspect_size = (420.0 - $post_titles[curr_post].height) / $post_images[curr_post].height
+            end
+            $post_images[curr_post].make(20, 10 * curr_post + curr_post * 440 - $position + 10 + $post_titles[curr_post].height, aspect_size, aspect_size, false)
+            if @frames_passed / 60 == 30
+              $post_images[curr_post].reload
+            end
           end
-          if $post_images[curr_post].height * aspect_size > 420 - $post_titles[curr_post].height
-            aspect_size = (420.0 - $post_titles[curr_post].height) / $post_images[curr_post].height
-          end
-          $post_images[curr_post].make(20, 10 * curr_post + curr_post * 440 - $position + 10 + $post_titles[curr_post].height, aspect_size, aspect_size, false)
-          if @frames_passed / 60 == 30
-            $post_images[curr_post].reload
-          end
+          $post_titles[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 10)
+        else
+          dbg_hidden_posts +=1
         end
-        $post_titles[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 10)
         curr_post += 1
       end
+      ## DEBUG PRINT NON DRAWING POSTS
+      # DBG("main", __LINE__, "#{dbg_hidden_posts}")
       $slide.make($width - 200 - 35, 10)
     end
     if @frames_passed / 60 == 30
