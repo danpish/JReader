@@ -4,3 +4,4 @@ oldortests/*
 settings.json
 temp
 temp/*
+Gemfile.lock
