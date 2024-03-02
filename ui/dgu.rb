@@ -579,7 +579,7 @@ class Image < Gosu::Image
     filetype = ""
     succes = false
     begin
-      d_file = URI.parse(url).open().read
+      d_file = URI.parse(url).read
 
       for char in 1..3
         filetype = url[-char] + filetype

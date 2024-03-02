@@ -65,6 +65,10 @@ class JR
       f_option = f_option + "search?q=" + search_query + "&"
     end
 
+    if limited
+      f_option = f_option + "restrict_sr=on" + "&"
+    end
+    
     f_option = f_option + "t=" + $time_table[time] + "&"
 
     if is_nsfw
@@ -72,9 +76,6 @@ class JR
     end
     f_option = f_option + "sort=" + $sort_by[sort_by] + "&"
 
-    if limited
-      f_option = f_option + "restric_sr=" + "on" + "&"
-    end
     f_option = f_option + "api"
 
     return url_encode f_option # returns a string like url. Only works for ruby 3+
@@ -92,7 +93,7 @@ class JR
           $loaded_json = JSON.load URI.parse(link).read # if you want localhost or give full URL
         end
       else
-        if $set_inst != nil
+        if not $set_inst.nil?
           DBG("core", __LINE__, "link sent to url parser is #{$set_inst + link}")
           $loaded_json = JSON.load URI.parse($set_inst + link).read
         else
@@ -102,6 +103,7 @@ class JR
       end
       return true
     rescue
+      ERR("CORE", __LINE__, "load_json codeblock failed with error #{error}")
       return false
     end
   end
@@ -187,16 +189,21 @@ class JR
   # return_preview_image gets an integer and returns an url as string or false apon failure
 
   def return_full_image(post)
+    posts = "links"
+    if $loaded_json["links"].nil?
+      posts = "posts"
+    end
     if $set_inst.class != String
       ERR("core", __LINE__, "instance is not set correctly")
       return false
     end
-    if $loaded_json["links"][post]["images"].nil? or $loaded_json["links"][post]["images"]["preview"].nil?
+    if $loaded_json[posts][post]["images"].nil? or $loaded_json[posts][post]["images"]["preview"].nil?
       DBG("core", __LINE__, "post does not have any image")
       return false
     end
-    DBG("core", __LINE__, $loaded_json["links"][post]["images"]["preview"])
-    return $set_inst + $loaded_json["links"][post]["images"]["preview"]
+    DBG("core", __LINE__, "search form is #{posts}")
+    DBG("core", __LINE__, $loaded_json[posts][post]["images"]["preview"])
+    return $set_inst + $loaded_json[posts][post]["images"]["preview"]
   end
 end
 

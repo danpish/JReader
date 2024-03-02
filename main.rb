@@ -21,9 +21,20 @@ $starter_back.corner_data([$RCG, $RCG, $RCG, $RCG])
 $search_subreddit = TextIn.new($width / 2 - 20 - 100, 100, "subreddit", 40, nil, 25)
 $search_subreddit.corner_data([$RCG, 0, $RCG, 0])
 
+$subreddit_search = TextIn.new(100, 50, "subreddit", 15, nil, 15)
+$subreddit_search.corner_data([$RCG, 0, $RCG, 0])
+$subreddit_search.visible(false)
+
 $posts_background = nil
 $post_titles = nil
 $post_images = nil
+
+def reset_temp
+  if File.directory?("temp")
+    FileUtils::rm_r("temp")
+  end
+  FileUtils::mkdir("temp")
+end
 
 class ScrollThrough < Slider
   def on_change(pers)
@@ -37,16 +48,32 @@ class SubredditSearchButton < Button
     puts $JR.return_loaded_json.nil?
     if not $JR.return_loaded_json.nil?
       hide_main_menu
-      results
+      results false
     end
   end
 end
 
-$subreddit_search_button = SubredditSearchButton.new(100, 100, "search", Gosu::Color::CYAN, 25, 30)
+class SearchSubreddit < Button
+  def job
+    reset_temp
+    puts $JR.subreddit_search($search_subreddit.text, $subreddit_search.text)
+    puts $JR.return_loaded_json.nil?
+    if not $JR.return_loaded_json.nil?
+      hide_main_menu
+      results true
+    end
+  end
+end
+
+$search_subreddit_button = SubredditSearchButton.new(100, 100, "go", Gosu::Color::CYAN, 25, 30)
+$search_subreddit_button.corner_data([0, $RCG, 0, $RCG])
+
+$subreddit_search_button = SearchSubreddit.new(80, 50, "search", Gosu::Color::CYAN, 20, 10)
 $subreddit_search_button.corner_data([0, $RCG, 0, $RCG])
+$subreddit_search_button.visible(false)
 
 def hide_main_menu
-  $subreddit_search_button.visible(false)
+  $search_subreddit_button.visible(false)
   $search_subreddit.visible(false)
   $starter_back.visible(false)
 end
@@ -55,24 +82,31 @@ $subreddit_about = Rectangle.new(200, 400, $GForeground_color)
 $subreddit_about.corner_data([$RCG, $RCG, $RCG, $RCG])
 $subreddit_about.visible(false)
 
-def results
+def results(subreddit_search)
   $subreddit_about.visible(true)
+  $subreddit_search_button.visible(true)
+  $subreddit_search.visible(true)
   $posts_background = Array.new(0)
   $post_titles = Array.new(0)
   $post_images = Array.new(0)
   $post_texts = Array.new(0)
-
-  for post in 0..$JR.return_loaded_json["links"].length - 1
+  
+  search = "links"
+  if subreddit_search
+    search = "posts"
+  end
+  
+  for post in 0..$JR.return_loaded_json[search].length - 1
     $posts_background.push(Rectangle.new($width - 200 - 45, 440, $GForeground_color))
     $posts_background[post].corner_data([$RCG, $RCG, $RCG, $RCG])
-    $post_titles.push(Gosu::Image.from_text($JR.return_loaded_json["links"][post]["title"], 20, width: $width - 200 - 45))
-    if not $JR.return_loaded_json["links"][post]["images"].nil?
+    $post_titles.push(Gosu::Image.from_text($JR.return_loaded_json[search][post]["title"], 20, width: $width - 200 - 45))
+    if not $JR.return_loaded_json[search][post]["images"].nil?
       $post_images.push(Image.new($JR.return_full_image(post), post.to_s))
     else
       $post_images.push(nil)
     end
-    if not $JR.return_loaded_json["links"][post]["selftext_html"].nil?
-      $post_texts.push(Gosu::Image.from_markup(ReverseMarkdown.convert($JR.return_loaded_json["links"][post]["selftext_html"]), 20 ,width:$width - 200 - 45))
+    if not $JR.return_loaded_json[search][post]["selftext_html"].nil?
+      $post_texts.push(Gosu::Image.from_markup(ReverseMarkdown.convert($JR.return_loaded_json[search][post]["selftext_html"]), 20 ,width:$width - 200 - 45))
     else
       $post_texts.push(nil)
     end
@@ -80,19 +114,17 @@ def results
   $slide = ScrollThrough.new($height - 20, 0, (440 + 10) * ($posts_background.length - 1))
 end
 
+
 class JReader < Gosu::Window
   def initialize
     super $width, $height
     self.caption = "jreader - dev"
     @frames_passed = 0
-    if File.directory?("temp")
-      FileUtils::rm_r("temp")
-    end
-    FileUtils::mkdir("temp")
+    reset_temp
   end
 
   def update
-    $subreddit_search_button.update(mouse_x, mouse_y)
+    $search_subreddit_button.update(mouse_x, mouse_y)
     if not $slide.nil?
       $slide.change(mouse_x, mouse_y, button_down?(256))
     end
@@ -105,8 +137,10 @@ class JReader < Gosu::Window
     stroke_color $GStroke_color
     $starter_back.make($width / 2 - ($width / 4), 10)
     $search_subreddit.make(self, $width / 2 - ($width / 4) + 10, 60)
-    $subreddit_search_button.add($width - 10 - 100 - ($width / 4), 60)
+    $search_subreddit_button.add($width - 10 - 100 - ($width / 4), 60)
     $subreddit_about.make($width - 200 - 10, 10)
+    $subreddit_search_button.add($width - 200 + 100, 40)
+    $subreddit_search.make(self,$width - 200, 40)
     if $posts_background.class == Array and $subreddit_about.visible?
       curr_post = 0
       dbg_hidden_posts = 0
@@ -153,7 +187,9 @@ class JReader < Gosu::Window
   def button_up(key)
     if key == 256
       $search_subreddit.clicked(mouse_x, mouse_y)
+      $search_subreddit_button.clicked(mouse_x, mouse_y)
       $subreddit_search_button.clicked(mouse_x, mouse_y)
+      $subreddit_search.clicked(mouse_x, mouse_y)
     end
     self.text_input = $active_text
   end
