@@ -13,9 +13,24 @@ $stroke_color = Gosu::Color::RED
 
 $active_text = nil
 
+$graphical_settings = Array.new(0)
+
+def push
+  $graphical_settings.push([$stroke, $stroke_weigh, $stroke_color])
+end
+
 def stroke(do_QM)
   $stroke = do_QM
 end
+=begin
+def pop
+  $graphical_settings.pop
+  last_settings = $graphical_settings.last
+  $stroke = last_settings[0]
+  $stroke_weigh = last_settings[1]
+  $stroke_color = last_settings[2]
+end
+=end
 
 def pop
   $stroke = false
@@ -580,7 +595,7 @@ class Image < Gosu::Image
     succes = false
     begin
       d_file = URI.parse(url).read
-
+      puts "link sent to image downloader is #{url}"
       for char in 1..3
         filetype = url[-char] + filetype
       end
@@ -594,7 +609,6 @@ class Image < Gosu::Image
         for char in 1..4
           filetype = url[-char] + filetype
         end
-        puts filetype
         for formats in $known_filetypes
           if filetype == formats
             succes = true

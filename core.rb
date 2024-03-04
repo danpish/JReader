@@ -201,8 +201,8 @@ class JR
       DBG("core", __LINE__, "post does not have any image")
       return false
     end
-    DBG("core", __LINE__, "search form is #{posts}")
-    DBG("core", __LINE__, $loaded_json[posts][post]["images"]["preview"])
+    #DBG("core", __LINE__, "search form is #{posts}")
+    #DBG("core", __LINE__, $loaded_json[posts][post]["images"]["preview"])
     return $set_inst + $loaded_json[posts][post]["images"]["preview"]
   end
 end
