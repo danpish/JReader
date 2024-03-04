@@ -55,7 +55,7 @@ class Button_new < Button
         $JR.get_subreddit($search_subreddit.text, 2)
         results false
       else
-        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, 3)
+        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 3)
         results true
       end
     end
@@ -71,7 +71,7 @@ class Button_top < Button
         $JR.get_subreddit($search_subreddit.text, 1)
         results false
       else
-        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, 2)
+        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 2)
         results true
       end
     end
@@ -87,7 +87,7 @@ class Button_hot < Button
         $JR.get_subreddit($search_subreddit.text, 0)
         results false
       else
-        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, 1)
+        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 1)
         results true
       end
     end
