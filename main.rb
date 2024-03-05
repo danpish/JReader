@@ -39,7 +39,7 @@ def is_subreddit_searched
     return "posts"
   else
     return "links"
-  end 
+  end
 end
 
 # $type = ["hot", "top", "new"]
@@ -100,7 +100,7 @@ class Button_relevance < Button
     reset_temp
     if not is_subreddit_searched.nil?
       if is_subreddit_searched == "posts"
-        $JR.subreddit_search($search_subreddit.text,$subreddit_search.text,$def_nsfw,0)
+        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 0)
         results true
       end
     end
@@ -174,12 +174,12 @@ def results(subreddit_search)
   $post_titles = Array.new(0)
   $post_images = Array.new(0)
   $post_texts = Array.new(0)
-  
+
   search = "links"
   if subreddit_search
     search = "posts"
   end
-  
+
   for post in 0..$JR.return_loaded_json[search].length - 1
     $posts_background.push(Rectangle.new($width - 200 - 45, 440, $GForeground_color))
     $posts_background[post].corner_data([$RCG, $RCG, $RCG, $RCG])
@@ -190,14 +190,13 @@ def results(subreddit_search)
       $post_images.push(nil)
     end
     if not $JR.return_loaded_json[search][post]["selftext_html"].nil?
-      $post_texts.push(Gosu::Image.from_markup(ReverseMarkdown.convert($JR.return_loaded_json[search][post]["selftext_html"]), 20 ,width:$width - 200 - 45))
+      $post_texts.push(Gosu::Image.from_markup(ReverseMarkdown.convert($JR.return_loaded_json[search][post]["selftext_html"]), 20, width: $width - 200 - 45))
     else
       $post_texts.push(nil)
     end
   end
   $slide = ScrollThrough.new($height - 20, 0, (440 + 10) * ($posts_background.length - 1))
 end
-
 
 class JReader < Gosu::Window
   def initialize
@@ -210,10 +209,10 @@ class JReader < Gosu::Window
   def update
     $search_subreddit_button.update(mouse_x, mouse_y)
     $subreddit_search_button.update(mouse_x, mouse_y)
-    $button_new.update(mouse_x,mouse_y)
-    $button_top.update(mouse_x,mouse_y)
-    $button_hot.update(mouse_x,mouse_y)
-    $button_relevance.update(mouse_x,mouse_y)
+    $button_new.update(mouse_x, mouse_y)
+    $button_top.update(mouse_x, mouse_y)
+    $button_hot.update(mouse_x, mouse_y)
+    $button_relevance.update(mouse_x, mouse_y)
     if not $slide.nil?
       $slide.change(mouse_x, mouse_y, button_down?(256))
     end
@@ -221,8 +220,8 @@ class JReader < Gosu::Window
 
   def draw
     #background color
-    $background_color.make(0,0)
-    
+    $background_color.make(0, 0)
+
     @frames_passed += 1
     stroke true
     stroke_weigh = 10
@@ -232,13 +231,13 @@ class JReader < Gosu::Window
     $search_subreddit_button.add($width - 10 - 100 - ($width / 4), 60)
     $subreddit_about.make($width - 200 - 10, 10)
     $subreddit_search_button.add($width - 200 + 100, 40)
-    $subreddit_search.make(self,$width - 200, 40)
+    $subreddit_search.make(self, $width - 200, 40)
     if $posts_background.class == Array and $subreddit_about.visible?
       curr_post = 0
       dbg_hidden_posts = 0
       for post in $posts_background
         post_pos = 10 * curr_post + curr_post * 440
-        if post_pos + 440 > $position and post_pos  < $position + $width
+        if post_pos + 440 > $position and post_pos < $position + $width
           $posts_background[curr_post].make(10, post_pos - $position + 50)
           if not $post_images[curr_post].nil?
             aspect_size = 1
@@ -252,7 +251,7 @@ class JReader < Gosu::Window
             if $post_images[curr_post].height * aspect_size > 420 - $post_titles[curr_post].height - post_height
               aspect_size = (420.0 - $post_titles[curr_post].height - post_height) / $post_images[curr_post].height
             end
-            $post_images[curr_post].make(20, 10 * curr_post + curr_post * 440 - $position  + 60 + $post_titles[curr_post].height, aspect_size, aspect_size, false)
+            $post_images[curr_post].make(20, 10 * curr_post + curr_post * 440 - $position + 60 + $post_titles[curr_post].height, aspect_size, aspect_size, false)
             if @frames_passed / 60 == 30
               $post_images[curr_post].reload
             end
@@ -262,24 +261,23 @@ class JReader < Gosu::Window
           end
           $post_titles[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 60)
         else
-          dbg_hidden_posts +=1
+          dbg_hidden_posts += 1
         end
         curr_post += 1
       end
       ## DEBUG PRINT NON DRAWING POSTS
       # DBG("main", __LINE__, "#{dbg_hidden_posts}")
-      draw_rect(0,0,$width - 200 - 35, 50, $GBackground_color)
-      $button_new.add(5,5)
-      $button_top.add(($width - 200 - 35) / 4 + 5,5)
-      $button_hot.add(($width - 200 - 35) / 2 + 5,5)
-      $button_relevance.add(($width - 200 - 35) / 4 * 3 + 5,5)
+      draw_rect(0, 0, $width - 200 - 35, 50, $GBackground_color)
+      $button_new.add(5, 5)
+      $button_top.add(($width - 200 - 35) / 4 + 5, 5)
+      $button_hot.add(($width - 200 - 35) / 2 + 5, 5)
+      $button_relevance.add(($width - 200 - 35) / 4 * 3 + 5, 5)
       $slide.make($width - 200 - 35, 10)
     end
     if @frames_passed / 60 == 30
       @frames_passed = 0
     end
     pop
-    
   end
 
   def button_up(key)
@@ -288,10 +286,10 @@ class JReader < Gosu::Window
       $search_subreddit_button.clicked(mouse_x, mouse_y)
       $subreddit_search_button.clicked(mouse_x, mouse_y)
       $subreddit_search.clicked(mouse_x, mouse_y)
-      $button_new.clicked(mouse_x,mouse_y)
-      $button_top.clicked(mouse_x,mouse_y)
-      $button_hot.clicked(mouse_x,mouse_y)
-      $button_relevance.clicked(mouse_x,mouse_y)
+      $button_new.clicked(mouse_x, mouse_y)
+      $button_top.clicked(mouse_x, mouse_y)
+      $button_hot.clicked(mouse_x, mouse_y)
+      $button_relevance.clicked(mouse_x, mouse_y)
     end
     self.text_input = $active_text
   end

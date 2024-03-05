@@ -7,11 +7,17 @@ require "fileutils"
 
 $known_filetypes = ["png", "jpg", "gif", "jpeg"]
 
+#settings used by objects
+
 $stroke = false
 $stroke_weigh = 5
 $stroke_color = Gosu::Color::RED
 
+#active textinput (is used by main function)
+
 $active_text = nil
+
+#array of graphical settings to be used by shapes (unused for now)
 
 $graphical_settings = Array.new(0)
 
@@ -19,9 +25,6 @@ def push
   $graphical_settings.push([$stroke, $stroke_weigh, $stroke_color])
 end
 
-def stroke(do_QM)
-  $stroke = do_QM
-end
 =begin
 def pop
   $graphical_settings.pop
@@ -36,6 +39,10 @@ def pop
   $stroke = false
   $stroke_weigh = 5
   $stroke_color = Gosu::Color::RED
+end
+
+def stroke(do_QM)
+  $stroke = do_QM
 end
 
 def stroke_color(color)
@@ -57,6 +64,8 @@ def stroke_weigh(value)
     return 44
   end
 end
+
+# Shapes is foundation of all shapes in dgu
 
 class Shapes < Gosu::Window
   ##
@@ -82,6 +91,12 @@ class Shapes < Gosu::Window
   end
 end
 
+# Circle is a shape that can be defined and be used multiple times
+# the initialization requires 3 variuables radious, circle_resolution, main_color
+# it also accepts additional argument secondary_color for gradiant however its not implemented yet
+
+# drawing function for circle is make and it take 2 arguments position_x, position_y
+
 class Circle < Shapes
   def initialize(radious, res, color1, color2 = nil)
     @radious = radious
@@ -94,26 +109,36 @@ class Circle < Shapes
     if not @visible
       return 0
     end
+    
     previous_point = 0
+    # set the drawing position anchor to top left (move the circle to bottom right)
     center_x = posx + @radious
     center_y = posy + @radious
+    # place points arount the curcle from 0(begining) to 1(complete circle)
     for each_point in 1..@res
+      #turn position of our point into radians (from 0 to 2PI)
       normalize = each_point.to_f / @res
       normalize *= 2 * Math::PI
+      
       if @color2.nil?
+        # connect current and previous points and draw rectangle with them and the center
         draw_triangle(
           Math.cos(previous_point) * @radious + center_x, Math.sin(previous_point) * @radious + center_y, @color1,
           Math.cos(normalize) * @radious + center_x, Math.sin(normalize) * @radious + center_y, @color1,
           center_x, center_y, @color1
         )
       end
+      #set the previous point to current radians and move to the next step
       previous_point = normalize
     end
 
     if $stroke
+      #simmilar to circle draw function
       for points in 1..@res
         normalize = points.to_f / @res
         normalize *= 2 * Math::PI
+        # draw a triangle between current and previous points
+        # that ranges $stroke_weigh amount closer and away from the center of the circle
         draw_quad(
           center_x + Math.cos(previous_point) * @radious - $stroke_weigh * Math.cos(previous_point) / 2, center_y - Math.sin(previous_point) * @radious + $stroke_weigh * Math.sin(previous_point) / 2, $stroke_color,
           center_x + Math.cos(previous_point) * @radious + $stroke_weigh * Math.cos(previous_point) / 2, center_y - Math.sin(previous_point) * @radious - $stroke_weigh * Math.sin(previous_point) / 2, $stroke_color,
@@ -125,6 +150,12 @@ class Circle < Shapes
     end
   end
 end
+
+# Ellipse is a shape that can be defined and be used multiple times
+# the initialization requires 4 variuables width, height, ellipse_resolution, main_color
+# it also accepts additional argument secondary_color for gradiant however its not implemented yet
+
+# drawing function for ellipse is make and it take 2 arguments position_x, position_y
 
 class Ellipse < Shapes
   def initialize(radious1, radious2, res, color1, color2 = nil)
@@ -139,13 +170,18 @@ class Ellipse < Shapes
     if not @visible
       return 0
     end
+
     previous_point = 0
     center_x = posx + @radious1
     center_y = posy + @radious2
+    
     for each_point in 1..@res
       normalize = each_point.to_f / @res
       normalize *= 2 * Math::PI
+      
       if @color2.nil?
+        # drawing function is simmilar to circle however
+        # ellipse points position x multiplier and position y multiplier are set and used seperately
         draw_triangle(
           Math.cos(previous_point) * @radious1 + center_x, Math.sin(previous_point) * @radious2 + center_y, @color1,
           Math.cos(normalize) * @radious1 + center_x, Math.sin(normalize) * @radious2 + center_y, @color1,
@@ -160,6 +196,8 @@ class Ellipse < Shapes
         normalize = points.to_f / @res
         normalize *= 2 * Math::PI
         draw_quad(
+          # drawing function is simmilar to circles stroke however
+          # ellipse points position x multiplier and position y multiplier are set and used seperately
           center_x + Math.cos(previous_point) * @radious1 - $stroke_weigh * Math.cos(previous_point) / 2, center_y - Math.sin(previous_point) * @radious2 + $stroke_weigh * Math.sin(previous_point) / 2, $stroke_color,
           center_x + Math.cos(previous_point) * @radious1 + $stroke_weigh * Math.cos(previous_point) / 2, center_y - Math.sin(previous_point) * @radious2 - $stroke_weigh * Math.sin(previous_point) / 2, $stroke_color,
           center_x + Math.cos(normalize) * @radious1 + $stroke_weigh * Math.cos(normalize) / 2, center_y - Math.sin(normalize) * @radious2 - $stroke_weigh * Math.sin(normalize) / 2, $stroke_color,
@@ -170,6 +208,16 @@ class Ellipse < Shapes
     end
   end
 end
+
+# Rectangle is a shape that can be defined and be used multiple times
+# the initialization requires 3 variuables width, height, main_color
+# it also accepts additional argument secondary_color for gradiant however its not implemented yet
+
+# another optional argurment is an array of 4 radious values that if set, draws a rectangle with rounded corners with 4 given radious
+# setting corner radious this way is not recommended please use corner_data function
+
+# drawing function for ellipse is make and it take 2 arguments position_x, position_y
+
 
 class Rectangle < Shapes
   def initialize(r_w, r_h, color1, color2 = nil, rads = Array.new(4))
@@ -188,7 +236,7 @@ class Rectangle < Shapes
       @r_scale = scale
       return 1
     else
-      puts "ERROR: line #{__LINE__} number provided is not a number"
+      puts "ERROR: line #{__LINE__} number provided is not a valid data type"
       return 44
     end
   end

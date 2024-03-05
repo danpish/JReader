@@ -68,7 +68,7 @@ class JR
     if limited
       f_option = f_option + "restrict_sr=on" + "&"
     end
-    
+
     f_option = f_option + "t=" + $time_table[time] + "&"
 
     if is_nsfw
