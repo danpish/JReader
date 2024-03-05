@@ -218,6 +218,12 @@ end
 
 # drawing function for ellipse is make and it take 2 arguments position_x, position_y
 
+# corner function gets an array of 4 numbers(radious) for corners of the rectangle.
+# if not set, rectangle will be drawn normaly without rounded edges
+# the function also have array error check if array provided does not have correct values or length
+
+# corner_data? returns an array of 4 currently set corner radious 
+# if the rectangle does not have corner data the function returns an empty array(nil,nil,nil,nil) 
 
 class Rectangle < Shapes
   def initialize(r_w, r_h, color1, color2 = nil, rads = Array.new(4))
