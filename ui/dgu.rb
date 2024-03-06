@@ -255,6 +255,7 @@ class Rectangle < Shapes
         is_valid = false
       end
     end
+    
     if is_valid
       @rads = rads
       @round_corners = true
@@ -267,29 +268,25 @@ class Rectangle < Shapes
 
   def corner_data?()
     if @rads[0].nil?
-      nil
+      return nil
     end
-    [@rads[0], @rads[1], @rads[2], @rads[3]]
+    return [@rads[0], @rads[1], @rads[2], @rads[3]]
   end
 
   def make(posx, posy)
     if not @visible
       return 0
     end
+    
     @round_corners = true
     for corner in @rads
       if corner.nil?
         @round_corners = false
       end
     end
+    
     if @round_corners
-      #draw_rect(
-      #  posx,
-      #  posy,
-      #  @r_w,
-      #  @r_h,
-      #  Gosu::Color::RED
-      #)
+      # draw 4 faces of rectangle first
       draw_quad(
         posx + @rads[0], posy, @color1,
         posx + @rads[0], posy + @rads[0], @color1,
@@ -314,6 +311,7 @@ class Rectangle < Shapes
         posx + @r_w, posy + @r_h - @rads[3], @color1,
         posx + @r_w - @rads[3], posy + @r_h - @rads[3], @color1
       )
+      #fill the center
       draw_quad(
         posx + @rads[0], posy + @rads[0], @color1,
         posx + @r_w - @rads[1], posy + @rads[1], @color1,
@@ -321,28 +319,43 @@ class Rectangle < Shapes
         posx + @rads[2], posy + @r_h - @rads[2], @color1
       )
 
+      # draw circle around the corners
+      # corner circle resolution is hard coded to 16
       previous_point = 0
       for points in 1..16
         normalize = points.to_f / 16
         normalize *= 2 * Math::PI
+
+        # move circle to different corners of the triangle
+        # with different radious
         dest_rad = 0
+        #first quater of circle
+        #placed at top left
         if points.to_f / 4 <= 1.to_f
           center_x = posx + @r_w - @rads[1]
           center_y = posy + @rads[1]
           dest_rad = @rads[1]
+        #second quater of circle
+        #placed at top right
         elsif points.to_f / 4 <= 2.to_f
           center_x = posx + @rads[0]
           center_y = posy + @rads[0]
           dest_rad = @rads[0]
+        #third quater of circle
+        #placed at bottom right
         elsif points.to_f / 4 <= 3.to_f
           center_x = posx + @rads[2]
           center_y = posy + @r_h - @rads[2]
           dest_rad = @rads[2]
+        #last quater of circle
+        #placed at buttom left
         else
           center_x = posx + @r_w - @rads[3]
           center_y = posy + @r_h - @rads[3]
           dest_rad = @rads[3]
         end
+        # set points to circles each milestone points
+        # prevents circle from drawing over or start away from each triangle corner
         if points.to_f / 4 == 1.to_f
           normalize = Math::PI / 2
         end
@@ -361,6 +374,8 @@ class Rectangle < Shapes
       end
 
       if $stroke
+        # draw 4 lines at each face of triangle
+        # length of each line is reduced by both corner radious at both side of the line
         draw_rect(
           posx + @rads[0],
           posy - $stroke_weigh / 2,
@@ -390,6 +405,7 @@ class Rectangle < Shapes
           $stroke_color
         )
 
+        #simmilar to corner and circle stroke
         previous_point = 0
         for points in 1..16
           normalize = points.to_f / 16
@@ -430,7 +446,9 @@ class Rectangle < Shapes
           previous_point = normalize
         end
       end
+    
     else
+      # no corners provided and draw a simple rectangle
       draw_quad(
         posx, posy, @color1,
         posx + @r_w, posy, @color1,
@@ -438,6 +456,7 @@ class Rectangle < Shapes
         posx + @r_w, posy + @r_h, @color1
       )
 
+      # draw 4 lines covering full length of the faces
       if $stroke
         draw_rect(
           posx - $stroke_weigh / 2,
@@ -472,6 +491,19 @@ class Rectangle < Shapes
   end
 end
 
+# Button is a shape that unlike other shapes can be assined to do a function once used
+# the initialization requires 4 variuables width, height, label, main_color
+
+# other optional arguments include textsize(in pixels), margin(distance of text from top left of the shape in pixels)
+# text color, color2(for gradiant support correnly unsupported)
+
+# click function of button is defined by defining of a new button class and modifying the job function
+
+# unlike other shapes, Button is drawn with add function that takes position X and Y with anchor of top left
+
+# for effects to take place add the buttons update function to the applications update function and add clicked function to the button_down function
+# both take 2 arguments of the current mouse position x and y
+
 class Button < Rectangle
 
   # planned to add
@@ -496,6 +528,8 @@ class Button < Rectangle
   def job
   end
 
+  # because this class is continewation of rectangle function, make function cannot be called directly
+  
   def add(posx, posy)
     if not @visible
       return 0
@@ -505,12 +539,14 @@ class Button < Rectangle
     make(@posx, @posy)
     @text_image.draw(posx + @margin, posy + @margin, 0, 1, 1, @text_color)
   end
-
+  
   def update(mouse_x, mouse_y)
     @color1 = @old_color
+    # prevents function from executing if the button is not drawn
     if @posx.nil? or @posy.nil?
       return 0
     end
+    # check if mouse cursor is on the button
     if not mouse_x > @posx or not mouse_x < @posx + @r_w
       return 0
     end
@@ -518,8 +554,12 @@ class Button < Rectangle
       return 0
     end
 
+    # seperate the given color to an array of 3.
+    # this function makes color modification possible
     @RGB = [@color1.red(), @color1.green(), @color1.blue()]
     @DEST_RGB = Array.new(3)
+
+    # lighten the color 
     for color in 0..2
       @DEST_RGB[color] = @RGB[color] + 100
       if @DEST_RGB[color] > 255
@@ -529,6 +569,7 @@ class Button < Rectangle
 
     @color1 = Gosu::Color::rgb(@DEST_RGB[0], @DEST_RGB[1], @DEST_RGB[2])
 
+    # darken the color if mouse left click is active
     if button_down?(256)
       for color in 0..2
         @DEST_RGB[color] = @RGB[color] - 100
@@ -557,7 +598,22 @@ class Button < Rectangle
   end
 end
 
-class Slider < Rectangle
+# Slider is a shape that unlike other shapes can be assined to do a function once used
+# the initialization requires 3 variuables height, minimum_value, maximum_value
+
+# drawing function for Slider is make and it take 2 arguments position_x, position_y
+# width of slider is hardcoded to be 20 pixels
+
+# for slider to function the change function must be added to applications update function
+# it takes 3 arguments position of mouse x and y and status of mouse left click (with button_down?)
+
+# on change slider calls on_change function which can be overwritten by defining a custom class
+
+# value function returns the sliders current value ranging from minimum to maximum
+
+# value of slider increases with sliders position from top to bottom
+
+class Slider < Shapes
   def initialize(r_h, min, max)
     @r_h = r_h
     @min = min
@@ -578,6 +634,7 @@ class Slider < Rectangle
     end
     @pos_x = posx
     @pos_y = posy
+    #tall white rectangle
     draw_rect(
       posx, posy, 20, @r_h, Gosu::Color::WHITE
     )
@@ -591,6 +648,7 @@ class Slider < Rectangle
       posx + 5, posy + @r_h - 15, Gosu::Color::GRAY,
       posx + 15, posy + @r_h - 15, Gosu::Color::GRAY
     )
+    # the main slider
     draw_rect(
       posx + 1, @value + posy + 20,
       18, 18,
@@ -630,6 +688,7 @@ class Slider < Rectangle
     if @value > @r_h - 60
       @value = @r_h - 60
     end
+    # normalize the value from min to max
     @persentage = @value / (@r_h - 60) * (@max - @min) + @min
     on_change(@persentage)
   end
@@ -642,6 +701,8 @@ class Slider < Rectangle
     return @value
   end
 end
+
+# Image is a continewation of gosus image function with the ability to load images from the web
 
 class Image < Gosu::Image
   def download_image(url, name)
