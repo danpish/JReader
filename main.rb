@@ -252,9 +252,9 @@ class JReader < Gosu::Window
               aspect_size = (420.0 - $post_titles[curr_post].height - post_height) / $post_images[curr_post].height
             end
             $post_images[curr_post].make(20, 10 * curr_post + curr_post * 440 - $position + 60 + $post_titles[curr_post].height, aspect_size, aspect_size, false)
-            if @frames_passed / 60 == 30
-              $post_images[curr_post].reload
-            end
+            # if @frames_passed / 60 == 30
+            #   $post_images[curr_post].reload
+            # end
           end
           if not $post_texts[curr_post].nil?
             $post_texts[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 490 - $post_texts[curr_post].height)

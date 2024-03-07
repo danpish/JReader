@@ -67,6 +67,13 @@ end
 
 # Shapes is foundation of all shapes in dgu
 
+# visible gets a boolean that changes the shapes visibility
+# this function is usable acros all of the shapes with images and textin being exceptions
+
+# visible? returns shapes visible state
+
+# color gets a gosu::color and changes the main color of shapes(not used in textin and images) 
+
 class Shapes < Gosu::Window
   ##
   # none
@@ -703,14 +710,39 @@ class Slider < Shapes
 end
 
 # Image is a continewation of gosus image function with the ability to load images from the web
+# the initialization requires 2 variables, image_url and a file name(without extention)
+
+# one other optional variuable is a boolean that endicates that should image be downloaded or loaded offline
+# however this feature is deprecated as offline images can be done with gosu::image anyway
+
+# Image can be drawn with make function. It takes 2 variuables position x and y
+# other optional argumets are width and height as a multiplier(2 means the image will be drawn twice as big)
+# however the last argument is a boolean which if set to true, the function gets resolution instead of scale.
+# not setting the optional arguments the image will be drawn the size it was designed
+
+# download_image is a function that gets the image url and a name(without an extention) and downloads the image into said name with the extention automaticaly detected
+# and download the image with final name into JReaders root temp folder. Which later is used as a gosu::image
+# using this function is not required as its called automatically after initialization 
+
+# reload is a function that is called automatically after download_image is done.
+# reload can be manually called. Once called in case of exsistance of download file, it will load it into a gosu::image
+
+# width and height are both functions that in case of file being downloaded, will return original width and height of the image(regardless of assigned scale or resolution)
+
+# visible gets a boolean that sets the images visibility
+
+# got_image will return downloaded image as a gosu::image
 
 class Image < Gosu::Image
   def download_image(url, name)
     filetype = ""
     succes = false
+    
     begin
       d_file = URI.parse(url).read
       puts "link sent to image downloader is #{url}"
+      
+      # check if the file extension is 3 characters long
       for char in 1..3
         filetype = url[-char] + filetype
       end
@@ -720,6 +752,7 @@ class Image < Gosu::Image
         end
       end
       if not succes
+        # retry with 4 characters
         filetype = ""
         for char in 1..4
           filetype = url[-char] + filetype
@@ -732,21 +765,24 @@ class Image < Gosu::Image
       end
       @downloaded_image = 2
       if succes
-        @downloaded_image = 1
-        File.open("temp/#{name}.#{filetype}", "wb").write(d_file)
+        image_file = File.open("temp/#{name}.#{filetype}", "wb")
+        image_file.write(d_file)
+        image_file.close()
         @filetype = filetype
+        @downloaded_image = 1
       end
+      # flush the downloaded image from memmory
       d_file = nil
-    rescue
-      puts "IMAGE LOADING CODE BLOCK FAILED"
+    rescue => error
+      puts "IMAGE LOADING CODE BLOCK FAILED WITH ERROR #{error}"
       succes = false
     end
   end
 
   def reload
     begin
-      @got_image = nil
       @got_image = Gosu::Image.new("temp/#{@image_name}.#{@filetype}")
+      success = true 
     rescue
       puts "ERROR DGU #{__LINE__} image reload failed"
     end
@@ -758,7 +794,9 @@ class Image < Gosu::Image
       puts "ERROR #{__LINE__} temp folder doesn't exist"
       return 0
     end
+    # status of downloader
     @downloaded_image = 0 # 0 no, 1 yes, 2 failed
+    
     @loading_image = Gosu::Image.from_text("loading...", 20)
     @failed_image = Gosu::Image.from_text("failed :C", 20)
     @did_reload = false
@@ -794,22 +832,29 @@ class Image < Gosu::Image
         reload
       end
       scalex, scaley = 1, 1
+      width_valid = height_valid = false 
+
+      #validate width and height
+
+      if not width.nil?
+        width_valid = true
+      end
+      if not height.nil?
+        height_valid = true
+      end
+      
       if not @got_image.nil?
         if got_res
-          if not width.nil?
-            if not width.class == Float
-              width = width.to_f
-            end
-            scalex = width / @got_image.width
+          if width_valid
+            scalex = width / @got_image.width.to_f
           end
-          if not height.nil?
-            if not height.class == Float
-              height = height.to_f
-            end
-            scaley = height / @got_image.height
+          if height_valid
+            scaley = height / @got_image.height.to_f
           end
         else
-          scalex, scaley = width, height
+          if width_valid and height_valid
+            scalex, scaley = width, height
+          end
         end
         @got_image.draw(posx, posy, 0, scalex, scaley)
       end
@@ -820,8 +865,12 @@ class Image < Gosu::Image
     end
   end
 
+  def visible(to)
+    @visible = to
+  end
+
   def got_image
-    @got_image
+    return @got_image
   end
 end
 
