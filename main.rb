@@ -202,7 +202,6 @@ class JReader < Gosu::Window
   def initialize
     super $width, $height
     self.caption = "jreader - dev"
-    @frames_passed = 0
     reset_temp
   end
 
@@ -219,46 +218,57 @@ class JReader < Gosu::Window
   end
 
   def draw
-    #background color
+    # background color
     $background_color.make(0, 0)
 
-    @frames_passed += 1
     stroke true
     stroke_weigh = 10
     stroke_color $GStroke_color
+
+    # main search area
     $starter_back.make($width / 2 - ($width / 4), 10)
     $search_subreddit.make(self, $width / 2 - ($width / 4) + 10, 60)
     $search_subreddit_button.add($width - 10 - 100 - ($width / 4), 60)
+    # about subreddit area (seriously teddit. where can I get subreddit info)
     $subreddit_about.make($width - 200 - 10, 10)
     $subreddit_search_button.add($width - 200 + 100, 40)
     $subreddit_search.make(self, $width - 200, 40)
+    
     if $posts_background.class == Array and $subreddit_about.visible?
       curr_post = 0
       dbg_hidden_posts = 0
-      for post in $posts_background
+      
+      for post in $posts_background     
         post_pos = 10 * curr_post + curr_post * 440
+
+        # check if posts are inside of main screen
         if post_pos + 440 > $position and post_pos < $position + $width
           $posts_background[curr_post].make(10, post_pos - $position + 50)
+
           if not $post_images[curr_post].nil?
             aspect_size = 1
             post_height = 0
+            
             if not $post_texts[curr_post].nil?
               post_height = $post_texts[curr_post].height
             end
+            
+            # fitting the image inside of the post 
             if $post_images[curr_post].width > $width - 200 - 65
               aspect_size = ($width - 200 - 65) / $post_images[curr_post].width.to_f
             end
             if $post_images[curr_post].height * aspect_size > 420 - $post_titles[curr_post].height - post_height
               aspect_size = (420.0 - $post_titles[curr_post].height - post_height) / $post_images[curr_post].height
             end
+            
             $post_images[curr_post].make(20, 10 * curr_post + curr_post * 440 - $position + 60 + $post_titles[curr_post].height, aspect_size, aspect_size, false)
-            # if @frames_passed / 60 == 30
-            #   $post_images[curr_post].reload
-            # end
+          
           end
+          
           if not $post_texts[curr_post].nil?
             $post_texts[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 490 - $post_texts[curr_post].height)
           end
+          
           $post_titles[curr_post].draw(20, 10 * curr_post + curr_post * 440 - $position + 60)
         else
           dbg_hidden_posts += 1
@@ -267,15 +277,15 @@ class JReader < Gosu::Window
       end
       ## DEBUG PRINT NON DRAWING POSTS
       # DBG("main", __LINE__, "#{dbg_hidden_posts}")
+
+      # top bar (sorting buttons)
       draw_rect(0, 0, $width - 200 - 35, 50, $GBackground_color)
       $button_new.add(5, 5)
       $button_top.add(($width - 200 - 35) / 4 + 5, 5)
       $button_hot.add(($width - 200 - 35) / 2 + 5, 5)
       $button_relevance.add(($width - 200 - 35) / 4 * 3 + 5, 5)
+      
       $slide.make($width - 200 - 35, 10)
-    end
-    if @frames_passed / 60 == 30
-      @frames_passed = 0
     end
     pop
   end

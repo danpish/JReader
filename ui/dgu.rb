@@ -13,7 +13,7 @@ $stroke = false
 $stroke_weigh = 5
 $stroke_color = Gosu::Color::RED
 
-#active textinput (is used by main function)
+#active textinput (is used by main application)
 
 $active_text = nil
 
@@ -72,7 +72,7 @@ end
 
 # visible? returns shapes visible state
 
-# color gets a gosu::color and changes the main color of shapes(not used in textin and images) 
+# color gets a gosu::color and changes the main color of shapes(not used in textin and images)
 
 class Shapes < Gosu::Window
   ##
@@ -116,7 +116,7 @@ class Circle < Shapes
     if not @visible
       return 0
     end
-    
+
     previous_point = 0
     # set the drawing position anchor to top left (move the circle to bottom right)
     center_x = posx + @radious
@@ -126,7 +126,7 @@ class Circle < Shapes
       #turn position of our point into radians (from 0 to 2PI)
       normalize = each_point.to_f / @res
       normalize *= 2 * Math::PI
-      
+
       if @color2.nil?
         # connect current and previous points and draw rectangle with them and the center
         draw_triangle(
@@ -181,11 +181,11 @@ class Ellipse < Shapes
     previous_point = 0
     center_x = posx + @radious1
     center_y = posy + @radious2
-    
+
     for each_point in 1..@res
       normalize = each_point.to_f / @res
       normalize *= 2 * Math::PI
-      
+
       if @color2.nil?
         # drawing function is simmilar to circle however
         # ellipse points position x multiplier and position y multiplier are set and used seperately
@@ -229,8 +229,8 @@ end
 # if not set, rectangle will be drawn normaly without rounded edges
 # the function also have array error check if array provided does not have correct values or length
 
-# corner_data? returns an array of 4 currently set corner radious 
-# if the rectangle does not have corner data the function returns an empty array(nil,nil,nil,nil) 
+# corner_data? returns an array of 4 currently set corner radious
+# if the rectangle does not have corner data the function returns an empty array(nil,nil,nil,nil)
 
 class Rectangle < Shapes
   def initialize(r_w, r_h, color1, color2 = nil, rads = Array.new(4))
@@ -262,7 +262,7 @@ class Rectangle < Shapes
         is_valid = false
       end
     end
-    
+
     if is_valid
       @rads = rads
       @round_corners = true
@@ -284,14 +284,14 @@ class Rectangle < Shapes
     if not @visible
       return 0
     end
-    
+
     @round_corners = true
     for corner in @rads
       if corner.nil?
         @round_corners = false
       end
     end
-    
+
     if @round_corners
       # draw 4 faces of rectangle first
       draw_quad(
@@ -342,20 +342,20 @@ class Rectangle < Shapes
           center_x = posx + @r_w - @rads[1]
           center_y = posy + @rads[1]
           dest_rad = @rads[1]
-        #second quater of circle
-        #placed at top right
+          #second quater of circle
+          #placed at top right
         elsif points.to_f / 4 <= 2.to_f
           center_x = posx + @rads[0]
           center_y = posy + @rads[0]
           dest_rad = @rads[0]
-        #third quater of circle
-        #placed at bottom right
+          #third quater of circle
+          #placed at bottom right
         elsif points.to_f / 4 <= 3.to_f
           center_x = posx + @rads[2]
           center_y = posy + @r_h - @rads[2]
           dest_rad = @rads[2]
-        #last quater of circle
-        #placed at buttom left
+          #last quater of circle
+          #placed at buttom left
         else
           center_x = posx + @r_w - @rads[3]
           center_y = posy + @r_h - @rads[3]
@@ -453,7 +453,6 @@ class Rectangle < Shapes
           previous_point = normalize
         end
       end
-    
     else
       # no corners provided and draw a simple rectangle
       draw_quad(
@@ -509,7 +508,7 @@ end
 # unlike other shapes, Button is drawn with add function that takes position X and Y with anchor of top left
 
 # for effects to take place add the buttons update function to the applications update function and add clicked function to the button_down function
-# both take 2 arguments of the current mouse position x and y
+# both take 2 variuables of the current mouse position x and y
 
 class Button < Rectangle
 
@@ -536,7 +535,7 @@ class Button < Rectangle
   end
 
   # because this class is continewation of rectangle function, make function cannot be called directly
-  
+
   def add(posx, posy)
     if not @visible
       return 0
@@ -546,7 +545,7 @@ class Button < Rectangle
     make(@posx, @posy)
     @text_image.draw(posx + @margin, posy + @margin, 0, 1, 1, @text_color)
   end
-  
+
   def update(mouse_x, mouse_y)
     @color1 = @old_color
     # prevents function from executing if the button is not drawn
@@ -566,7 +565,7 @@ class Button < Rectangle
     @RGB = [@color1.red(), @color1.green(), @color1.blue()]
     @DEST_RGB = Array.new(3)
 
-    # lighten the color 
+    # lighten the color
     for color in 0..2
       @DEST_RGB[color] = @RGB[color] + 100
       if @DEST_RGB[color] > 255
@@ -722,7 +721,7 @@ end
 
 # download_image is a function that gets the image url and a name(without an extention) and downloads the image into said name with the extention automaticaly detected
 # and download the image with final name into JReaders root temp folder. Which later is used as a gosu::image
-# using this function is not required as its called automatically after initialization 
+# using this function is not required as its called automatically after initialization
 
 # reload is a function that is called automatically after download_image is done.
 # reload can be manually called. Once called in case of exsistance of download file, it will load it into a gosu::image
@@ -737,11 +736,11 @@ class Image < Gosu::Image
   def download_image(url, name)
     filetype = ""
     succes = false
-    
+
     begin
       d_file = URI.parse(url).read
       puts "link sent to image downloader is #{url}"
-      
+
       # check if the file extension is 3 characters long
       for char in 1..3
         filetype = url[-char] + filetype
@@ -782,7 +781,7 @@ class Image < Gosu::Image
   def reload
     begin
       @got_image = Gosu::Image.new("temp/#{@image_name}.#{@filetype}")
-      success = true 
+      success = true
     rescue
       puts "ERROR DGU #{__LINE__} image reload failed"
     end
@@ -796,7 +795,7 @@ class Image < Gosu::Image
     end
     # status of downloader
     @downloaded_image = 0 # 0 no, 1 yes, 2 failed
-    
+
     @loading_image = Gosu::Image.from_text("loading...", 20)
     @failed_image = Gosu::Image.from_text("failed :C", 20)
     @did_reload = false
@@ -808,17 +807,17 @@ class Image < Gosu::Image
 
   def width
     if @got_image.class == Gosu::Image
-      @got_image.width
+      return @got_image.width
     else
-      0
+      return 0
     end
   end
 
   def height
     if @got_image.class == Gosu::Image
-      @got_image.height
+      return @got_image.height
     else
-      0
+      return 0
     end
   end
 
@@ -832,7 +831,7 @@ class Image < Gosu::Image
         reload
       end
       scalex, scaley = 1, 1
-      width_valid = height_valid = false 
+      width_valid = height_valid = false
 
       #validate width and height
 
@@ -842,9 +841,10 @@ class Image < Gosu::Image
       if not height.nil?
         height_valid = true
       end
-      
+
       if not @got_image.nil?
         if got_res
+          #resolution is provided
           if width_valid
             scalex = width / @got_image.width.to_f
           end
@@ -852,8 +852,12 @@ class Image < Gosu::Image
             scaley = height / @got_image.height.to_f
           end
         else
-          if width_valid and height_valid
-            scalex, scaley = width, height
+          #scale is provided
+          if width_valid
+            scalex = width
+          end
+          if height_valid
+            scaley = height
           end
         end
         @got_image.draw(posx, posy, 0, scalex, scaley)
@@ -873,6 +877,22 @@ class Image < Gosu::Image
     return @got_image
   end
 end
+
+# TextIn is Gosu::TextInput class with Rectangle functionalaties
+# initialization requires 4 variuables, width, height, default_text, text_size
+# other optional variuables are maximum_letter, padding, background color, text color (foreground)
+# TextIn is not a continewation of rectangle. So rectangle draw is a class variuable inside of TextIn.
+
+# since TextIn is not direct continewation of shapes or rectangle, some functions are rewritten such as
+# visible, corner_data
+# TextIns corner_data does not do any validation. The validation is done by rectangle defined in TextIn instead
+
+# active_chech compares selected textInput of main application. is called automatically at the end of make function
+
+# get_width and get_height returns the supposed text image size.
+
+# clicked function selects the textin as the applications default textinput. for selection to take place make sure 
+# the application is updating its active_text to $active_text regularly
 
 class TextIn < Gosu::TextInput
   def initialize(r_w, r_h, def_text, text_size, max_letters = nil, padding = 5, back_color = Gosu::Color::GRAY, text_color = Gosu::Color::WHITE)
