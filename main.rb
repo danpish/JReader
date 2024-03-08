@@ -170,31 +170,48 @@ def results(subreddit_search)
   $subreddit_about.visible(true)
   $subreddit_search_button.visible(true)
   $subreddit_search.visible(true)
+  
   $posts_background = Array.new(0)
   $post_titles = Array.new(0)
   $post_images = Array.new(0)
   $post_texts = Array.new(0)
 
-  search = "links"
-  if subreddit_search
-    search = "posts"
+  # posts from normal subreddit and searching the subreddit are different
+  # for more info visit https://codeberg.org/teddit/teddit/wiki#teddit-api
+  search = "links" # normal subreddit browsing
+  if subreddit_search 
+    search = "posts" # searching subreddit
   end
 
   for post in 0..$JR.return_loaded_json[search].length - 1
+    
     $posts_background.push(Rectangle.new($width - 200 - 45, 440, $GForeground_color))
     $posts_background[post].corner_data([$RCG, $RCG, $RCG, $RCG])
     $post_titles.push(Gosu::Image.from_text($JR.return_loaded_json[search][post]["title"], 20, width: $width - 200 - 45))
+
+    
     if not $JR.return_loaded_json[search][post]["images"].nil?
-      $post_images.push(Image.new($JR.return_full_image(post), post.to_s))
+      # try to download full images. download thumbnail instead if the media is unsupported  
+      if $JR.return_loaded_json[search][post]["images"].key?("preview")
+        if not $JR.return_loaded_json[search][post]["images"]["preview"].nil?
+          $post_images.push(Image.new($JR.return_full_image(post), post.to_s))
+        else
+          $post_images.push(Image.new($JR.return_loaded_json[search][post]["images"]["thumb"], post.to_s))
+        end
+      else
+        $post_images.push(Image.new($JR.return_loaded_json[search][post]["images"]["thumb"], post.to_s))
+      end
     else
       $post_images.push(nil)
     end
+    
     if not $JR.return_loaded_json[search][post]["selftext_html"].nil?
       $post_texts.push(Gosu::Image.from_markup(ReverseMarkdown.convert($JR.return_loaded_json[search][post]["selftext_html"]), 20, width: $width - 200 - 45))
     else
       $post_texts.push(nil)
     end
   end
+  
   $slide = ScrollThrough.new($height - 20, 0, (440 + 10) * ($posts_background.length - 1))
 end
 
