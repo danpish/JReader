@@ -145,12 +145,18 @@ end
 
 class SubredditSearchButton < Button
   def job
-    puts $JR.get_subreddit($search_subreddit.text)
+    subreddit_search = false
+    if @text == "go"
+      puts $JR.get_subreddit($search_subreddit.text)
+    else
+      puts $JR.subreddit_search("popular", $search_subreddit.text)
+      subreddit_search = true
+    end
     puts $JR.return_loaded_json.nil?
     if not $JR.return_loaded_json.nil?
       hide_main_menu
-      results false
-      add_sort_buttons false
+      results subreddit_search
+      add_sort_buttons subreddit_search
     end
   end
 end
@@ -168,8 +174,33 @@ class SearchSubreddit < Button
   end
 end
 
-$search_subreddit_button = SubredditSearchButton.new(100, 100, "go", Gosu::Color::CYAN, 25, 30)
-$search_subreddit_button.corner_data([0, $RCG, 0, $RCG])
+def main_menu_button(is_popular)
+  text = "go"
+  if is_popular
+    text = "search"
+  end
+  $search_subreddit_button = SubredditSearchButton.new(100, 100, text, Gosu::Color::CYAN, 25, 30)
+  $search_subreddit_button.corner_data([0, $RCG, 0, $RCG])
+end
+
+main_menu_button(false)
+
+class Set_popular < Button
+  def job
+    main_menu_button(true)
+  end
+end
+
+class Set_subreddit < Button
+  def job
+    main_menu_button(false)
+  end
+end
+
+$Set_popular = Set_popular.new($width / 4 - 10, 50, "r/popular", Gosu::Color::CYAN, 25, 10)
+$Set_subreddit = Set_subreddit.new($width / 4 - 10, 50, "subreddit", Gosu::Color::CYAN, 25, 10)
+$Set_popular.corner_data([$RCG,0,$RCG,0])
+$Set_subreddit.corner_data([0,$RCG,0,$RCG])
 
 $subreddit_search_button = SearchSubreddit.new(80, 50, "search", Gosu::Color::CYAN, 20, 10)
 $subreddit_search_button.corner_data([0, $RCG, 0, $RCG])
@@ -185,10 +216,13 @@ $subreddit_about = Rectangle.new(200, 400, $GForeground_color)
 $subreddit_about.corner_data([$RCG, $RCG, $RCG, $RCG])
 $subreddit_about.visible(false)
 
+
 def results(subreddit_search)
   $subreddit_about.visible(true)
   $subreddit_search_button.visible(true)
   $subreddit_search.visible(true)
+  $Set_popular.visible(false)
+  $Set_subreddit.visible(false)
   
   $posts_background = Array.new(0)
   $post_titles = Array.new(0)
@@ -250,6 +284,8 @@ class JReader < Gosu::Window
     if not $button_relevance.nil?
       $button_relevance.update(mouse_x, mouse_y)
     end
+    $Set_popular.update(mouse_x, mouse_y)
+    $Set_subreddit.update(mouse_x, mouse_y)
     if not $slide.nil?
       $slide.change(mouse_x, mouse_y, button_down?(256))
     end
@@ -265,8 +301,10 @@ class JReader < Gosu::Window
 
     # main search area
     $starter_back.make($width / 2 - ($width / 4), 10)
-    $search_subreddit.make(self, $width / 2 - ($width / 4) + 10, 60)
-    $search_subreddit_button.add($width - 10 - 100 - ($width / 4), 60)
+    $Set_popular.add($width / 2 - ($width / 4) + 10, 30)
+    $Set_subreddit.add($width / 2 - ($width / 4) + 10 + $Set_popular.width, 30)
+    $search_subreddit.make(self, $width / 2 - ($width / 4) + 10, 80)
+    $search_subreddit_button.add($width - 10 - 100 - ($width / 4), 80)
     # about subreddit area (seriously teddit. where can I get subreddit info)
     $subreddit_about.make($width - 200 - 10, 10)
     $subreddit_search_button.add($width - 200 + 100, 40)
@@ -338,6 +376,8 @@ class JReader < Gosu::Window
       $button_new.clicked(mouse_x, mouse_y)
       $button_top.clicked(mouse_x, mouse_y)
       $button_hot.clicked(mouse_x, mouse_y)
+      $Set_popular.clicked(mouse_x, mouse_y)
+      $Set_subreddit.clicked(mouse_x, mouse_y)
       if not $button_relevance.nil?
         $button_relevance.clicked(mouse_x, mouse_y)
       end

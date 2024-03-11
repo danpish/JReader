@@ -232,6 +232,8 @@ end
 # corner_data? returns an array of 4 currently set corner radious
 # if the rectangle does not have corner data the function returns an empty array(nil,nil,nil,nil)
 
+# width and height return width and height of the rectangle
+
 class Rectangle < Shapes
   def initialize(r_w, r_h, color1, color2 = nil, rads = Array.new(4))
     @r_w = r_w
