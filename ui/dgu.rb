@@ -495,6 +495,15 @@ class Rectangle < Shapes
       end
     end
   end
+
+  def width
+    return @r_w
+  end
+
+  def height
+    return @r_h
+  end
+  
 end
 
 # Button is a shape that unlike other shapes can be assined to do a function once used

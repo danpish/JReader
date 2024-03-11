@@ -8,26 +8,38 @@ $JRSetting.load_settings
 
 $width, $height = 1024, 720
 
+# common corner radious
 $RCG = 30
 
+# scroll potition of the posts
 $position = 0
 
+# search posts from /r/popular or go to subreddit
+$search_popular = false
+
+# colors
 $GBackground_color = Gosu::Color::rgb(23, 38, 44)
 $GForeground_color = Gosu::Color::rgb(33, 48, 54)
 $GStroke_color = Gosu::Color::rgb(43, 58, 64)
 
+## shapes
+#background rectangle
 $background_color = Rectangle.new($width, $height, $GBackground_color)
 
+# subreddit explorer background
 $starter_back = Rectangle.new($width / 2, 200, $GForeground_color)
 $starter_back.corner_data([$RCG, $RCG, $RCG, $RCG])
 
+# subreddit explorer text bar 
 $search_subreddit = TextIn.new($width / 2 - 20 - 100, 100, "subreddit", 40, nil, 25)
 $search_subreddit.corner_data([$RCG, 0, $RCG, 0])
 
+# subreddit search text bar
 $subreddit_search = TextIn.new(100, 50, "", 15, nil, 15)
 $subreddit_search.corner_data([$RCG, 0, $RCG, 0])
 $subreddit_search.visible(false)
 
+# posts info
 $posts_background = nil
 $post_titles = nil
 $post_images = nil
@@ -40,11 +52,6 @@ def is_subreddit_searched
   else
     return "links"
   end
-end
-
-# $type = ["hot", "top", "new"]
-
-def update_sort_buttons
 end
 
 class Button_new < Button
@@ -108,10 +115,20 @@ class Button_relevance < Button
   end
 end
 
-$button_new = Button_new.new(($width - 200 - 35 - 20) / 4, 40, "new", Gosu::Color::CYAN, 20, 10)
-$button_top = Button_top.new(($width - 200 - 35 - 20) / 4, 40, "top", Gosu::Color::CYAN, 20, 10)
-$button_hot = Button_hot.new(($width - 200 - 35 - 20) / 4, 40, "hot", Gosu::Color::CYAN, 20, 10)
-$button_relevance = Button_relevance.new(($width - 200 - 35 - 20) / 4, 40, "relev", Gosu::Color::CYAN, 20, 10)
+def add_sort_buttons(subreddit_search)
+  button_amount = 3
+  if subreddit_search
+    button_amount = 4
+  end
+  $button_new = Button_new.new(($width - 200 - 35 - 20) / button_amount, 40, "new", Gosu::Color::CYAN, 20, 10)
+  $button_top = Button_top.new(($width - 200 - 35 - 20) / button_amount, 40, "top", Gosu::Color::CYAN, 20, 10)
+  $button_hot = Button_hot.new(($width - 200 - 35 - 20) / button_amount, 40, "hot", Gosu::Color::CYAN, 20, 10)
+  if subreddit_search
+    $button_relevance = Button_relevance.new(($width - 200 - 35 - 20) / button_amount, 40, "relev", Gosu::Color::CYAN, 20, 10)
+  end
+end
+
+add_sort_buttons(false)
 
 def reset_temp
   if File.directory?("temp")
@@ -133,6 +150,7 @@ class SubredditSearchButton < Button
     if not $JR.return_loaded_json.nil?
       hide_main_menu
       results false
+      add_sort_buttons false
     end
   end
 end
@@ -145,6 +163,7 @@ class SearchSubreddit < Button
     if not $JR.return_loaded_json.nil?
       hide_main_menu
       results true
+      add_sort_buttons true
     end
   end
 end
@@ -228,7 +247,9 @@ class JReader < Gosu::Window
     $button_new.update(mouse_x, mouse_y)
     $button_top.update(mouse_x, mouse_y)
     $button_hot.update(mouse_x, mouse_y)
-    $button_relevance.update(mouse_x, mouse_y)
+    if not $button_relevance.nil?
+      $button_relevance.update(mouse_x, mouse_y)
+    end
     if not $slide.nil?
       $slide.change(mouse_x, mouse_y, button_down?(256))
     end
@@ -298,10 +319,11 @@ class JReader < Gosu::Window
       # top bar (sorting buttons)
       draw_rect(0, 0, $width - 200 - 35, 50, $GBackground_color)
       $button_new.add(5, 5)
-      $button_top.add(($width - 200 - 35) / 4 + 5, 5)
-      $button_hot.add(($width - 200 - 35) / 2 + 5, 5)
-      $button_relevance.add(($width - 200 - 35) / 4 * 3 + 5, 5)
-      
+      $button_top.add($button_new.width + 5, 5)
+      $button_hot.add($button_new.width + $button_top.width + 5, 5)
+      if not $button_relevance.nil?
+        $button_relevance.add($button_new.width + $button_top.width + $button_hot.width  + 5, 5)
+      end
       $slide.make($width - 200 - 35, 10)
     end
     pop
@@ -316,7 +338,9 @@ class JReader < Gosu::Window
       $button_new.clicked(mouse_x, mouse_y)
       $button_top.clicked(mouse_x, mouse_y)
       $button_hot.clicked(mouse_x, mouse_y)
-      $button_relevance.clicked(mouse_x, mouse_y)
+      if not $button_relevance.nil?
+        $button_relevance.clicked(mouse_x, mouse_y)
+      end
     end
     self.text_input = $active_text
   end
