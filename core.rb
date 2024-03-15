@@ -102,7 +102,7 @@ class JR
         end
       end
       return true
-    rescue
+    rescue => error
       ERR("CORE", __LINE__, "load_json codeblock failed with error #{error}")
       return false
     end
@@ -207,7 +207,7 @@ class JR
   end
 end
 
-$def_settings = { inst: "https://teddit.zaggy.nl", nsfw: false, time: 5, limit: false, sort_by: 0, type: 0 }
+$def_settings = { inst: "https://t.sneed.network", nsfw: false, time: 5, limit: false, sort_by: 0, type: 0 }
 $settings = nil
 
 class Settings

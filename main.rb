@@ -4,12 +4,19 @@ require "reverse_markdown"
 
 $JR = JR.new
 $JRSetting = Settings.new
-$JRSetting.load_settings
+setting_status = $JRSetting.load_settings
+
+while not setting_status
+  setting_status = $JRSetting.load_settings
+end
+
+
 
 $width, $height = 1024, 720
 
 # common corner radious
 $RCG = 30
+
 
 # scroll potition of the posts
 $position = 0
@@ -54,64 +61,54 @@ def is_subreddit_searched
   end
 end
 
+def sort_results(mode)
+  reset_temp
+  if not is_subreddit_searched().nil?
+    if is_subreddit_searched() == "links"
+      $JR.get_subreddit($search_subreddit.text, mode)
+      results false
+    else
+      if $search_popular
+        $JR.subreddit_search("popular", $search_subreddit.text, $def_nsfw, mode + 1)
+      else
+        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, mode + 1)
+      end
+      results true
+    end
+  end
+end
+
 class Button_new < Button
   def job
-    reset_temp
-    if not is_subreddit_searched.nil?
-      if is_subreddit_searched == "links"
-        $JR.get_subreddit($search_subreddit.text, 2)
-        results false
-      else
-        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 3)
-        results true
-      end
-    end
-    update_sort_buttons
+    sort_results(2)
   end
 end
 
 class Button_top < Button
   def job
-    reset_temp
-    if not is_subreddit_searched.nil?
-      if is_subreddit_searched == "links"
-        $JR.get_subreddit($search_subreddit.text, 1)
-        results false
-      else
-        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 2)
-        results true
-      end
-    end
-    update_sort_buttons
+    sort_results(1)
   end
 end
 
 class Button_hot < Button
   def job
-    reset_temp
-    if not is_subreddit_searched.nil?
-      if is_subreddit_searched == "links"
-        $JR.get_subreddit($search_subreddit.text, 0)
-        results false
-      else
-        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 1)
-        results true
-      end
-    end
-    update_sort_buttons
+    sort_results(0)
   end
 end
 
 class Button_relevance < Button
   def job
     reset_temp
-    if not is_subreddit_searched.nil?
-      if is_subreddit_searched == "posts"
-        $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 0)
+    if not is_subreddit_searched().nil?
+      if is_subreddit_searched() == "posts"
+        if $search_popular
+          $JR.subreddit_search("popular", $search_subreddit.text, $def_nsfw, 0)
+        else
+          $JR.subreddit_search($search_subreddit.text, $subreddit_search.text, $def_nsfw, 0)
+        end
         results true
       end
     end
-    update_sort_buttons
   end
 end
 
@@ -148,8 +145,10 @@ class SubredditSearchButton < Button
     subreddit_search = false
     if @text == "go"
       puts $JR.get_subreddit($search_subreddit.text)
+      $search_popular = false
     else
       puts $JR.subreddit_search("popular", $search_subreddit.text)
+      $search_popular = true
       subreddit_search = true
     end
     puts $JR.return_loaded_json.nil?
@@ -206,10 +205,34 @@ $subreddit_search_button = SearchSubreddit.new(80, 50, "search", Gosu::Color::CY
 $subreddit_search_button.corner_data([0, $RCG, 0, $RCG])
 $subreddit_search_button.visible(false)
 
+class Return_main_menu < Button
+  def job
+    $search_subreddit_button.visible(true)
+    $search_subreddit.visible(true)
+    $starter_back.visible(true)
+    $Set_popular.visible(true)
+    $Set_subreddit.visible(true)
+    
+    $subreddit_about.visible(false)
+    $subreddit_search_button.visible(false)
+    $subreddit_search.visible(false)
+    
+    $posts_background = Array.new(0)
+    $post_titles = Array.new(0)
+    $post_images = Array.new(0)
+    $post_texts = Array.new(0)
+  end
+end
+
+$Return_main_menu = Return_main_menu.new(100,50, "Back", Gosu::Color::CYAN, 20, 10)
+$Return_main_menu.corner_data([$RCG,$RCG,$RCG,$RCG])
+
 def hide_main_menu
   $search_subreddit_button.visible(false)
   $search_subreddit.visible(false)
   $starter_back.visible(false)
+  $Set_popular.visible(false)
+  $Set_subreddit.visible(false)
 end
 
 $subreddit_about = Rectangle.new(200, 400, $GForeground_color)
@@ -235,7 +258,8 @@ def results(subreddit_search)
   if subreddit_search 
     search = "posts" # searching subreddit
   end
-
+  
+  DBG("main", __LINE__, "#{search} #{subreddit_search}")
   for post in 0..$JR.return_loaded_json[search].length - 1
     
     $posts_background.push(Rectangle.new($width - 200 - 45, 440, $GForeground_color))
@@ -281,6 +305,7 @@ class JReader < Gosu::Window
     $button_new.update(mouse_x, mouse_y)
     $button_top.update(mouse_x, mouse_y)
     $button_hot.update(mouse_x, mouse_y)
+    $Return_main_menu.update(mouse_x, mouse_y)
     if not $button_relevance.nil?
       $button_relevance.update(mouse_x, mouse_y)
     end
@@ -362,6 +387,7 @@ class JReader < Gosu::Window
       if not $button_relevance.nil?
         $button_relevance.add($button_new.width + $button_top.width + $button_hot.width  + 5, 5)
       end
+      $Return_main_menu.add($width - 110, 410)
       $slide.make($width - 200 - 35, 10)
     end
     pop
@@ -378,6 +404,7 @@ class JReader < Gosu::Window
       $button_hot.clicked(mouse_x, mouse_y)
       $Set_popular.clicked(mouse_x, mouse_y)
       $Set_subreddit.clicked(mouse_x, mouse_y)
+      $Return_main_menu.clicked(mouse_x, mouse_y)
       if not $button_relevance.nil?
         $button_relevance.clicked(mouse_x, mouse_y)
       end
